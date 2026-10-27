@@ -1,11 +1,11 @@
 # Prutto-io
 Fise maskin deluxe – **Prutt-O-Teket Super 3000**, Norges mest avanserte biologiske lydlaboratorium.
 
-All lyd syntetiseres live i nettleseren med Web Audio, så appen virker uten nett. Alt ligger i `index.html`.
+Lydene er 44 ekte opptak med fri lisens, i mappen `lyder/` (se [kreditering](lyder/KREDITERING.md)). Appen ligger i `index.html` og må åpnes via nettadressen, for eksempel https://kilemann.github.io/prutto.io/, for at lydene skal lastes.
 
 ## Funksjoner
 - Soundboard med 8 klassikere og «Overrask meg»
-- Prompe-lab med 9 parametre og deling av oppskrift via lenke
+- Prompe-lab: velg opptak, tonehøyde, rasp, hakking og baklengs, og del oppskriften via lenke
 - Prompe-O-Meter, akustikkvalg (ute, stue, baderom, katedral)
 - Tidsbombe, riste-modus og Prompe-DJ
 

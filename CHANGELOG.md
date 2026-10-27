@@ -1,5 +1,16 @@
 # Changelog – Prutt-O-Teket Super 3000
 
+## v3.0.0 – 2026-10-27
+- Ekte fiselyder: 44 opptak fra Yle-arkivet og Wikimedia Commons erstatter den syntetiske lydmotoren.
+- Opptakene er målt (lengde, dybde, sprut, sus) og sortert i grupper. Hver knapp trekker et nytt opptak hver gang, uten å gjenta forrige.
+- «Liten mus, stor promp» og «Megaorkanen» legger flere opptak i lag.
+- Prompe-laben jobber på ekte opptak: velg opptak, tonehøyde/tempo, volum, rasp, hakking og baklengs.
+- Prompe-DJ spiller ekte opptak i takt, og laster lydene før første slag.
+- Prompe-O-Meteret regner ut fra opptakets målte egenskaper.
+- Lydkreditering i appen og i `lyder/KREDITERING.md`.
+- Oppskriftslenker har nytt format (v2). Lenker fra 2.0 virker ikke lenger.
+- Tester: 20 tester, blant annet at alle lydfiler finnes, er kreditert, og at ingen syntetisk lydmotor er igjen.
+
 ## v2.0.0 – 2026-10-27
 - Ny lydmotor: alle lyder syntetiseres live i nettleseren (Web Audio). Ingen eksterne MP3-er, virker offline.
 - Hver soundboard-knapp har egen karakter: tone, tonefall, flutter, væske, rasp, snikfaktor og pipe-hale.

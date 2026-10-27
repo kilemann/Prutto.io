@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Prutt-O-Teket Super 3000</title>
-<meta name="description" content="Norges mest avanserte biologiske lydlaboratorium. Alle lyder syntetiseres live i nettleseren.">
+<meta name="description" content="Norges mest avanserte biologiske lydlaboratorium – med 44 ekte fiseopptak.">
 <meta name="theme-color" content="#0d1326">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💨</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -150,6 +150,7 @@ h2{font-family:var(--display);font-weight:400;font-size:clamp(1.4rem,4.5vw,2rem)
 h3{font-family:var(--display);font-weight:400;font-size:1.45rem;margin:0;letter-spacing:.02em}
 .sub{color:var(--muted);margin:.35em 0 0;font-size:.9rem}
 .lab-grid{display:grid;gap:14px}
+.lab-grid>*{min-width:0}
 @media(min-width:760px){.lab-grid{grid-template-columns:1.25fr 1fr}}
 .well{background:var(--card2);border:3px solid var(--ink);border-radius:18px;padding:14px}
 .group-title{font:700 .7rem var(--mono);color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin:6px 0 8px}
@@ -161,6 +162,12 @@ input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:12px
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--gas);border:3px solid #000;box-shadow:0 2px 0 #000}
 input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--gas);border:3px solid #000}
 .lab-side{display:flex;flex-direction:column;gap:14px}
+.sample-row{display:flex;gap:8px;margin-bottom:12px}
+.sample-row select{flex:1;min-width:0;font:600 .92rem var(--body);color:var(--text);background:#0a0d1c;border:3px solid var(--ink);border-radius:14px;padding:.6em .7em}
+.sample-row .btn{padding:.5em .9em}
+.toggle{display:flex;align-items:center;gap:10px;font-weight:600;cursor:pointer;margin-top:4px}
+.toggle input{width:22px;height:22px;accent-color:var(--gas)}
+#loadStatus{color:#8fbf6f}
 .lab-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .lab-actions .btn-big{grid-column:1/-1}
 
@@ -203,6 +210,9 @@ footer details{margin:10px auto 0;max-width:560px;text-align:left;background:var
 footer summary{cursor:pointer;font-weight:700;color:var(--text)}
 footer h4{margin:12px 0 4px;color:var(--yellow);font-size:.85rem}
 footer ul{margin:0;padding-left:1.2em;line-height:1.5}
+.credits p{margin:10px 0 8px;line-height:1.45}
+.credits a{color:var(--gas)}
+.credits li{margin-bottom:6px}
 .version{font-family:var(--mono);background:#000;color:var(--gas);padding:2px 7px;border-radius:6px}
 
 #app.shake{animation:shake .42s cubic-bezier(.36,.07,.19,.97)}
@@ -237,7 +247,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
       <div class="scope-wrap">
         <canvas id="scope" aria-hidden="true"></canvas>
         <div id="scopeHint" class="scope-hint">Trykk på en knapp for å slippe ut gass 🟢</div>
-        <div class="scope-label"><span class="led"></span>Bio-gass-spektrometer v4.20</div>
+        <div class="scope-label"><span class="led"></span>Bio-gass-spektrometer v4.20 <span id="loadStatus"></span></div>
       </div>
       <dl class="stats" id="stats" aria-live="polite">
         <div><dt>Siste utslipp</dt><dd id="stName">Ingen ennå</dd></div>
@@ -272,8 +282,8 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     <!-- LAB -->
     <section id="panel-lab" role="tabpanel" aria-labelledby="tab-lab" class="panel" hidden>
       <div class="lab-head">
-        <h2>Biologisk gass-synthesizer</h2>
-        <p class="sub">Juster tarmtrykk, væskenivå og kjemisk sammensetning til du har skapt et mesterverk.</p>
+        <h2>Biologisk gasslaboratorium</h2>
+        <p class="sub">Velg blant 44 ekte opptak og vri på tonehøyde, rasp og hakking til du har skapt et mesterverk.</p>
       </div>
       <div class="lab-grid">
         <div class="well" id="labFields"></div>
@@ -339,10 +349,14 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
 
   <footer>
     <p>Prutt-O-Teket Super 3000 <span class="version" id="version"></span></p>
-    <p>All lyd syntetiseres live i nettleseren. Ingen dyr ble skadet – bortsett fra nesa di.</p>
+    <p>44 ekte opptak med fri lisens. Ingen dyr ble skadet – bortsett fra nesa di.</p>
     <details>
       <summary>Hva er nytt?</summary>
       <div id="changelog"></div>
+    </details>
+    <details>
+      <summary>Lydkreditering</summary>
+      <div id="credits" class="credits"></div>
     </details>
   </footer>
 </div>
@@ -354,27 +368,26 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
 <div id="toast" role="status" aria-live="polite"></div>
 
 <!-- ============================================================
-     KJERNE: ren logikk uten DOM. Testes med `node --test tests/*.test.mjs`.
+     KJERNE: ren logikk uten DOM. Testes med `npm test`.
      ============================================================ -->
 <script id="prutt-core">
 (function (root) {
   'use strict';
 
-  var VERSION = '2.0.0';
+  var VERSION = '3.0.0';
   var CHANGELOG = [
+    { version: '3.0.0', date: '2026-10-27', changes: [
+      'Ekte fiselyder: 44 opptak fra Yle-arkivet og Wikimedia Commons erstatter den syntetiske lydmotoren',
+      'Opptakene er målt (lengde, dybde, sprut, sus) og sortert i grupper – hver knapp trekker et nytt opptak hver gang',
+      'Liten mus, stor promp og Megaorkanen lager lag av flere opptak',
+      'Prompe-laben jobber på ekte opptak: velg opptak, tonehøyde/tempo, volum, rasp, hakking og baklengs',
+      'Prompe-DJ spiller ekte opptak i takt',
+      'Prompe-O-Meteret regner ut fra opptakets egenskaper',
+      'Lydkreditering i appen og i lyder/KREDITERING.md',
+      'Oppskriftslenker bruker nytt format (v2) – gamle lenker fra 2.0 virker ikke lenger'
+    ] },
     { version: '2.0.0', date: '2026-10-27', changes: [
-      'Helt ny lydmotor: alle lyder syntetiseres live – ingen eksterne MP3-filer, virker offline',
-      'Hver knapp har sin egen karakter (tone, flutter, væske, rasp, snik og pipe-hale)',
-      'Prompe-laben styrer nå faktisk lyden – 9 parametre, tilfeldig-knapp og deling av oppskrift via lenke',
-      'Prompe-O-Meteret regner ut dB, giftgassindeks og naboklage fra selve lyden i stedet for tilfeldige tall',
-      'Akustikkvalg: ute, stue, baderom og katedral (romklang)',
-      'Prompe-DJ med 4 × 8 rutenett, presis timing, remix og lagret mønster',
-      'Tidsbombe med tilfeldig nedtelling, avbryt-knapp, nedtelling som tåler bakgrunn og holder skjermen våken',
-      'Riste-modus med tydelig status og iOS-tillatelse',
-      'Vibrasjon i takt med lyden, gassky fra knappen du trykker på, tastatursnarveier 1–8',
-      'Eget design uten Tailwind/Font Awesome/konfetti-CDN – raskere og mer robust',
-      'Husker lyd av/på, akustikk, teller og DJ-mønster',
-      'Respekterer «redusert bevegelse» og har bedre tilgjengelighet (faner, aria, fokus)'
+      'Ny syntetisk lydmotor, nytt design, prompe-lab, akustikk, DJ-rutenett, tidsbombe og riste-modus'
     ] },
     { version: '1.0.0', date: '2026-10-27', changes: [
       'Første versjon: soundboard, prompe-lab, tidsbombe, riste-modus og DJ'
@@ -382,25 +395,6 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
   ];
 
   function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
-
-  var RANGES = {
-    pitch: [30, 500], pitchEnd: [20, 500], duration: [0.1, 4], wetness: [0, 1], flutter: [1, 60],
-    rasp: [0, 1], air: [0, 1], squeak: [0, 1], volume: [0, 1]
-  };
-  var DEFAULTS = { pitch: 120, pitchEnd: 54, duration: 0.8, wetness: 0.5, flutter: 15, rasp: 0.3, air: 0.1, squeak: 0, volume: 0.9 };
-  var KEYS = Object.keys(RANGES);
-
-  function normalizeParams(input) {
-    var src = input || {};
-    var out = {};
-    for (var i = 0; i < KEYS.length; i++) {
-      var k = KEYS[i], raw = src[k];
-      var n = Number(raw);
-      var v = (raw === undefined || raw === null || raw === '' || !isFinite(n)) ? DEFAULTS[k] : n;
-      out[k] = clamp(v, RANGES[k][0], RANGES[k][1]);
-    }
-    return out;
-  }
 
   function mulberry32(seed) {
     var a = seed >>> 0;
@@ -413,52 +407,139 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     };
   }
 
-  function curveLength(p, rate) { return Math.max(2, Math.round(p.duration * rate)); }
-  function smooth(x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
+  /* ---------- Kilder og opptak ---------- */
+  var SOURCES = {
+    yle: { author: 'Yle Arkisto', title: '425594 ylearkisto farts-pieruja.wav', note: 'via Freesound, lastet opp til Commons av Zache',
+      url: 'https://commons.wikimedia.org/wiki/File:425594_ylearkisto_farts-pieruja.wav', license: 'CC BY 3.0', licenseUrl: 'https://creativecommons.org/licenses/by/3.0/' },
+    frt755: { author: 'Horst Frank', title: 'Frt755 1.ogg',
+      url: 'https://commons.wikimedia.org/wiki/File:Frt755_1.ogg', license: 'CC BY-SA 3.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/' },
+    flatus: { author: 'JohnSumisu', title: 'Flatus.wav',
+      url: 'https://commons.wikimedia.org/wiki/File:Flatus.wav', license: 'CC BY-SA 3.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/' },
+    aimee: { author: 'PlatypussyPatrick', title: "Flatulence d'Aimée.ogg",
+      url: 'https://commons.wikimedia.org/wiki/File:Flatulence_d%27Aim%C3%A9e.ogg', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/' },
+    elcharpi: { author: 'El Charpi', title: 'Fart.ogg',
+      url: 'https://commons.wikimedia.org/wiki/File:Fart.ogg', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/' },
+    jjzh: { author: 'Prononcateur', title: 'Flatulences 03°2° JJZh.ogg',
+      url: 'https://commons.wikimedia.org/wiki/File:Flatulences_03%C2%B02%C2%B0_JJZh.ogg', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/' },
+    shortpop: { author: 'Subhashish Panigrahi', title: 'Human fart.wav',
+      url: 'https://commons.wikimedia.org/wiki/File:Human_fart.wav', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/' }
+  };
 
-  // Tonehøyde: eksponentiell glidning fra pitch til pitchEnd med litt «menneskelig» vingling i midten.
-  function buildPitchCurve(params, rate, rng) {
-    var p = normalizeParams(params);
-    var n = curveLength(p, rate);
-    var out = new Float32Array(n);
-    var ratio = p.pitchEnd / p.pitch;
-    var ph = rng() * Math.PI * 2, wf = 1.5 + rng() * 2.5;
-    for (var i = 0; i < n; i++) {
-      var x = i / (n - 1);
-      var glide = p.pitch * Math.pow(ratio, Math.pow(x, 0.7));
-      var wob = 1 + 0.06 * Math.sin(ph + x * wf * Math.PI * 2) * 4 * x * (1 - x);
-      out[i] = Math.max(20, glide * wob);
-    }
-    return out;
+  // [id, varighet s, aktiv lyd s, spektralt tyngdepunkt Hz, spektral flathet (sus), antall utbrudd, kilde]
+  // Målt fra de ferdige MP3-filene.
+  var SAMPLE_ROWS = [
+    ['aimee', 1.003, 0.29, 1935, 0.289, 6, 'aimee'],
+    ['fart', 0.35, 0.15, 2113, 0.356, 1, 'elcharpi'],
+    ['flatus', 4.61, 0.57, 1676, 0.018, 3, 'flatus'],
+    ['frt755', 2.601, 2.59, 341, 0.052, 0, 'frt755'],
+    ['jjzh', 1.159, 0.71, 1036, 0.077, 4, 'jjzh'],
+    ['short-pop', 0.411, 0.37, 2165, 0.304, 0, 'shortpop'],
+    ['yle-01', 0.71, 0.41, 2252, 0.261, 4, 'yle'],
+    ['yle-02', 1.474, 0.34, 1649, 0.274, 1, 'yle'],
+    ['yle-03', 2.13, 0.49, 2277, 0.309, 5, 'yle'],
+    ['yle-04', 0.796, 0.52, 2503, 0.378, 6, 'yle'],
+    ['yle-05', 2.067, 1.36, 1594, 0.189, 6, 'yle'],
+    ['yle-06', 0.377, 0.17, 2669, 0.456, 3, 'yle'],
+    ['yle-07', 2.169, 0.38, 1525, 0.188, 3, 'yle'],
+    ['yle-08', 0.505, 0.26, 1583, 0.268, 1, 'yle'],
+    ['yle-09', 1.142, 0.38, 2150, 0.388, 2, 'yle'],
+    ['yle-10', 1.314, 0.67, 2607, 0.418, 2, 'yle'],
+    ['yle-11', 0.636, 0.44, 1424, 0.23, 8, 'yle'],
+    ['yle-12', 1.249, 0.64, 2418, 0.389, 10, 'yle'],
+    ['yle-13', 1.074, 0.92, 1756, 0.253, 11, 'yle'],
+    ['yle-15', 2.871, 1.1, 1613, 0.221, 6, 'yle'],
+    ['yle-17', 0.485, 0.39, 2240, 0.311, 1, 'yle'],
+    ['yle-18', 1.869, 0.6, 1748, 0.228, 5, 'yle'],
+    ['yle-19', 1.021, 0.51, 651, 0.058, 1, 'yle'],
+    ['yle-20', 0.322, 0.22, 1137, 0.11, 2, 'yle'],
+    ['yle-21', 1.395, 0.65, 764, 0.101, 8, 'yle'],
+    ['yle-22', 0.882, 0.68, 1572, 0.166, 18, 'yle'],
+    ['yle-24', 0.772, 0.63, 2413, 0.357, 4, 'yle'],
+    ['yle-25', 1.177, 0.67, 2370, 0.366, 8, 'yle'],
+    ['yle-26', 2.173, 1.17, 1972, 0.304, 9, 'yle'],
+    ['yle-30', 0.91, 0.44, 1877, 0.246, 4, 'yle'],
+    ['yle-31', 2.819, 2.09, 1739, 0.171, 4, 'yle'],
+    ['yle-32', 1.597, 0.49, 1494, 0.187, 4, 'yle'],
+    ['yle-33', 0.646, 0.39, 1958, 0.373, 1, 'yle'],
+    ['yle-34', 1.394, 0.89, 1969, 0.345, 16, 'yle'],
+    ['yle-35', 1.021, 0.35, 2316, 0.312, 1, 'yle'],
+    ['yle-36', 1.225, 0.36, 1219, 0.173, 2, 'yle'],
+    ['yle-38', 5.697, 4.5, 1980, 0.306, 16, 'yle'],
+    ['yle-40', 0.948, 0.49, 2765, 0.46, 2, 'yle'],
+    ['yle-42', 1.675, 0.88, 1812, 0.191, 3, 'yle'],
+    ['yle-43', 1.61, 0.48, 1433, 0.183, 4, 'yle'],
+    ['yle-44', 0.481, 0.39, 2027, 0.382, 1, 'yle'],
+    ['yle-45', 1.295, 0.82, 1947, 0.329, 13, 'yle'],
+    ['yle-46', 0.639, 0.35, 2350, 0.304, 3, 'yle'],
+    ['yle-48', 1.568, 1.07, 2089, 0.348, 2, 'yle']
+  ];
+  var SAMPLES = SAMPLE_ROWS.map(function (r) {
+    return { id: r[0], dur: r[1], act: r[2], cen: r[3], flat: r[4], bursts: r[5], src: r[6] };
+  });
+  var BY_ID = {};
+  SAMPLES.forEach(function (s) { BY_ID[s.id] = s; });
+  function sample(id) { return BY_ID[id] || null; }
+  function sampleUrl(id) { return 'lyder/' + id + '.mp3'; }
+
+  /* ---------- Grupper ---------- */
+  var BANK_RULES = {
+    dyp: function (s) { return s.cen < 1300; },
+    lys: function (s) { return s.cen >= 2200; },
+    sprut: function (s) { return s.bursts >= 9; },
+    luft: function (s) { return s.flat >= 0.37; },
+    lang: function (s) { return s.act >= 1; },
+    kort: function (s) { return s.dur <= 0.52; },
+    middels: function (s) { return s.cen >= 1300 && s.cen < 2200 && s.bursts < 9 && s.dur >= 0.6; },
+    alle: function () { return true; }
+  };
+  var BANK_CACHE = {};
+  function bank(name) {
+    var rule = BANK_RULES[name];
+    if (!rule) return [];
+    if (!BANK_CACHE[name]) BANK_CACHE[name] = SAMPLES.filter(rule).map(function (s) { return s.id; });
+    return BANK_CACHE[name].slice();
+  }
+  function pickSample(list, rng, last) {
+    if (!list || !list.length) return null;
+    if (list.length === 1) return list[0];
+    var c = list.filter(function (x) { return x !== last; });
+    return c[Math.floor(rng() * c.length)];
+  }
+  var TAG_NAMES = [['dyp', 'dyp'], ['lys', 'lys'], ['sprut', 'sprutete'], ['luft', 'luftig'], ['lang', 'lang'], ['kort', 'kort']];
+  function sampleLabel(id) {
+    var s = sample(id); if (!s) return id;
+    var tags = TAG_NAMES.filter(function (t) { return BANK_RULES[t[0]](s); }).map(function (t) { return t[1]; });
+    var txt = tags.length ? tags.join(', ') : 'middels';
+    return txt.charAt(0).toUpperCase() + txt.slice(1) + ' · ' + s.dur.toFixed(1).replace('.', ',') + ' s · ' + id;
   }
 
-  // Amplitude: angrep/slipp-kurve multiplisert med «flutter» – lukkemuskelens blafring.
-  function buildAmpEnvelope(params, rate, rng) {
-    var p = normalizeParams(params);
-    var n = curveLength(p, rate);
-    var out = new Float32Array(n);
-    var aFrac = Math.min(0.25, 0.03 / p.duration + 0.02);
-    var rFrac = 0.25;
-    var depth = 0.9 - 0.45 * p.air;
-    var TAU = Math.PI * 2;
-    var phase = 0, pulse = 0.8 + 0.2 * rng();
-    for (var i = 0; i < n; i++) {
-      var x = i / (n - 1);
-      var att = smooth(x / aFrac);
-      var rel = x > 1 - rFrac ? smooth((1 - x) / rFrac) : 1;
-      var base = att * rel * (1 - 0.3 * x);
-      var m = 0.5 + 0.5 * Math.cos(phase);
-      var mod = (1 - depth) + depth * Math.pow(m, 0.6);
-      out[i] = clamp(base * mod * pulse, 0, 1);
-      var jitter = 1 + (rng() - 0.5) * 0.5 * (0.3 + p.wetness);
-      var prev = phase;
-      phase += TAU * p.flutter * jitter / rate;
-      if (Math.floor(phase / TAU) !== Math.floor(prev / TAU)) pulse = 0.7 + 0.3 * rng();
-    }
-    out[n - 1] = 0;
+  /* ---------- Stemme: ett opptak og hvordan det spilles ---------- */
+  var VOICE_DEFAULTS = { rate: 1, volume: 0.9, rasp: 0, stutter: 0, reverse: false };
+  var VOICE_RANGES = { rate: [0.5, 2], volume: [0, 1], rasp: [0, 1], stutter: [0, 4] };
+  function num(v, d) { var n = Number(v); return (v === undefined || v === null || v === '' || !isFinite(n)) ? d : n; }
+  function normalizeVoice(input) {
+    var v = input || {};
+    var out = { sample: BY_ID[v.sample] ? v.sample : 'frt755' };
+    for (var k in VOICE_RANGES) out[k] = clamp(num(v[k], VOICE_DEFAULTS[k]), VOICE_RANGES[k][0], VOICE_RANGES[k][1]);
+    out.stutter = Math.round(out.stutter);
+    out.reverse = !!v.reverse;
     return out;
   }
+  // Hakking: korte gjentakelser av starten før hele opptaket spilles. Tider i sekunder ut, lengder i opptakets tid.
+  function stutterPlan(n, bufDur, rate) {
+    var chunk = Math.min(0.09, bufDur * 0.3), gap = chunk / rate * 1.25, plan = [];
+    for (var i = 0; i < n; i++) plan.push({ offset: 0, length: chunk, at: i * gap });
+    plan.push({ offset: 0, length: bufDur, at: n * gap });
+    return plan;
+  }
+  function voiceDuration(voice, maxLen) {
+    var v = normalizeVoice(voice), s = sample(v.sample);
+    var plan = stutterPlan(v.stutter, s.dur, v.rate), last = plan[plan.length - 1];
+    var total = last.at + last.length / v.rate;
+    return maxLen ? Math.min(total, maxLen) : total;
+  }
 
+  /* ---------- Prompe-O-Meter ---------- */
   var THREATS = [
     '🟢 Lokalisert utslipp i det fri',
     '🟡 Moderat luktforurensning',
@@ -466,37 +547,37 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     '🔴 NATO-varsling: biologisk trussel'
   ];
   var SCAPEGOATS = ['Hunden 🐕', 'Katten 🐈', 'Onkel Per 👴', 'Stolen 🪑', 'Han i dongeri 👖', 'Naboen 🏠', 'Babyen 👶', 'Mopsen 🐶', 'Kollegaen 💼', 'Spøkelset 👻'];
-
-  function computeStats(params) {
-    var p = normalizeParams(params);
-    var lowness = clamp((300 - p.pitch) / 260, 0, 1);
-    var len = Math.min(p.duration, 3) / 3;
-    var db = Math.round(clamp(55 + 45 * p.volume * (1 - 0.75 * p.air) + 20 * lowness + 8 * len + 6 * p.rasp, 0, 140));
-    var stench = Math.round(clamp(30 + 35 * p.wetness + 45 * p.air + 10 * len + 5 * lowness, 0, 99));
+  function computeStats(voice) {
+    var v = normalizeVoice(voice), s = sample(v.sample);
+    var eff = s.cen * v.rate;
+    var low = clamp((2600 - eff) / 2200, 0, 1);
+    var len = Math.min(s.act / v.rate, 3) / 3;
+    var db = Math.round(clamp(50 + 40 * v.volume + 22 * low + 10 * len + 8 * v.rasp, 0, 140));
+    var stench = Math.round(clamp(25 + 30 * Math.min(s.bursts, 15) / 15 + 30 * clamp(s.flat / 0.46, 0, 1) + 15 * len + 30 * (1 - v.volume), 0, 99));
     var score = clamp(((db - 50) / 90) * 0.5 + (stench / 99) * 0.5, 0, 1);
     var threatIndex = Math.min(3, Math.floor(score * 4));
     var complaint = Math.round(clamp((db - 50) * 1.2, 0, 99));
     return { db: db, stench: stench, threatIndex: threatIndex, threat: THREATS[threatIndex], complaint: complaint };
   }
 
+  /* ---------- Soundboard ---------- */
   var PRESETS = [
     { id: 'snikeren', title: 'Snikeren', desc: 'Stille, men dødelig', name: 'Snikeren (stille, men dødelig)', icon: '🥷', colors: ['#fff27a', '#f5b700'],
-      params: { pitch: 380, pitchEnd: 300, duration: 1.4, wetness: 0.05, flutter: 40, rasp: 0, air: 0.9, squeak: 0, volume: 0.35 } },
+      layers: [{ bank: 'luft', rate: 1, volume: 0.35 }] },
     { id: 'sjefen', title: 'Sjefens torden', desc: 'Kontorets undergang', name: 'Sjefens tordenbrak', icon: '⚡', colors: ['#ff7a5c', '#e1263a'],
-      params: { pitch: 95, pitchEnd: 45, duration: 1.6, wetness: 0.15, flutter: 18, rasp: 0.7, air: 0.05, squeak: 0, volume: 1 } },
+      layers: [{ bank: 'dyp', rate: 0.92, volume: 1, rasp: 0.3 }] },
     { id: 'svigermor', title: 'Svigermors hevn', desc: 'Giftgass i stua', name: 'Svigermors hevn', icon: '👵', colors: ['#d18bff', '#ff5fa2'],
-      params: { pitch: 170, pitchEnd: 70, duration: 1.5, wetness: 0.35, flutter: 11, rasp: 0.4, air: 0.2, squeak: 0.3, volume: 0.85 } },
+      layers: [{ bank: 'middels', rate: 1, volume: 0.9 }] },
     { id: 'taco', title: 'Etter tacofredag', desc: 'Biologisk fare', name: 'Tacofredag-katastrofen', icon: '🌮', colors: ['#9cff5c', '#22a34a'],
-      params: { pitch: 85, pitchEnd: 40, duration: 2.2, wetness: 0.8, flutter: 24, rasp: 0.5, air: 0.1, squeak: 0, volume: 0.95 } },
+      layers: [{ bank: 'lang', rate: 0.95, volume: 1, rasp: 0.1 }] },
     { id: 'vaate', title: 'Våte væla', desc: 'Boblete og saftig', name: 'Våte væla', icon: '💦', colors: ['#6fe3ff', '#1aa6a0'],
-      params: { pitch: 130, pitchEnd: 65, duration: 1.1, wetness: 1, flutter: 30, rasp: 0.2, air: 0.05, squeak: 0, volume: 0.85 } },
+      layers: [{ bank: 'sprut', rate: 1.05, volume: 0.95 }] },
     { id: 'maskingevaer', title: 'Maskingeværet', desc: 'Rask serieild', name: 'Maskingeværsalve', icon: '🔫', colors: ['#7cffb0', '#0f9f6e'],
-      params: { pitch: 150, pitchEnd: 90, duration: 0.22, wetness: 0.1, flutter: 35, rasp: 0.6, air: 0, squeak: 0, volume: 0.9 },
-      burst: { count: 5, gap: 0.13, pitchStep: 12 } },
+      layers: [{ bank: 'kort', rate: 1.1, volume: 0.95, rasp: 0.2, maxLen: 0.3 }], burst: { count: 5, gap: 0.13, rateStep: 0.04 } },
     { id: 'mus', title: 'Liten mus, stor promp', desc: 'Uventet bass', name: 'Liten mus med stor gass', icon: '🐹', colors: ['#ffc86b', '#ff9a1f'],
-      params: { pitch: 320, pitchEnd: 55, duration: 1.3, wetness: 0.2, flutter: 9, rasp: 0.3, air: 0.05, squeak: 0.6, volume: 0.9 } },
+      layers: [{ bank: 'lys', rate: 1.7, volume: 0.7, maxLen: 0.35 }, { bank: 'dyp', rate: 0.85, volume: 1, delay: 0.45, main: true }] },
     { id: 'orkan', title: 'Megaorkanen', desc: 'Skjelving i gulvet', name: 'Klasse 5-urorkan', icon: '🌪️', colors: ['#8d8aa8', '#2d2a45'], light: true,
-      params: { pitch: 45, pitchEnd: 25, duration: 3, wetness: 0.6, flutter: 14, rasp: 0.9, air: 0, squeak: 0, volume: 1 } }
+      layers: [{ bank: 'lang', rate: 0.72, volume: 1, rasp: 0.6, main: true }, { bank: 'dyp', rate: 0.6, volume: 0.8, rasp: 0.4, delay: 0.2 }] }
   ];
 
   var ROOMS = [
@@ -506,20 +587,20 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     { id: 'katedral', label: 'Katedral', icon: '⛪', decay: 3.8, mix: 0.5 }
   ];
 
-  // ---- Timer ----
+  /* ---------- Timer ---------- */
   function formatTime(sec) {
     var s = Math.max(0, Math.ceil((Number(sec) || 0) - 1e-9));
     var m = Math.floor(s / 60), r = s % 60;
     return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
   }
 
-  // ---- DJ ----
+  /* ---------- DJ ---------- */
   var STEPS = 8;
   var DJ_ROWS = [
-    { id: 'torden', label: 'Bass', icon: '🥁', params: { pitch: 70, pitchEnd: 40, duration: 0.35, wetness: 0.1, flutter: 16, rasp: 0.8, air: 0, squeak: 0, volume: 1 } },
-    { id: 'salve', label: 'Salve', icon: '🔫', params: { pitch: 160, pitchEnd: 100, duration: 0.12, wetness: 0, flutter: 40, rasp: 0.5, air: 0, squeak: 0, volume: 0.8 } },
-    { id: 'pip', label: 'Pip', icon: '🐭', params: { pitch: 420, pitchEnd: 300, duration: 0.1, wetness: 0, flutter: 50, rasp: 0.1, air: 0.2, squeak: 0, volume: 0.6 } },
-    { id: 'splash', label: 'Splæsj', icon: '💦', params: { pitch: 120, pitchEnd: 70, duration: 0.25, wetness: 1, flutter: 30, rasp: 0.2, air: 0, squeak: 0, volume: 0.8 } }
+    { id: 'bass', label: 'Bass', icon: '🥁', bank: 'dyp', rate: 0.9, volume: 1, maxLen: 0.35 },
+    { id: 'smell', label: 'Smell', icon: '💥', bank: 'kort', rate: 1.15, volume: 0.9, maxLen: 0.18 },
+    { id: 'pip', label: 'Pip', icon: '🐭', bank: 'lys', rate: 1.8, volume: 0.6, maxLen: 0.12 },
+    { id: 'splash', label: 'Splæsj', icon: '💦', bank: 'sprut', rate: 1.1, volume: 0.85, maxLen: 0.3 }
   ];
   var DEFAULT_PATTERN = [
     [true, false, false, false, true, false, false, false],
@@ -542,8 +623,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     });
   }
   function randomPattern(rng, density) {
-    var d = density == null ? 0.35 : density;
-    var out = [];
+    var d = density == null ? 0.35 : density, out = [];
     for (var r = 0; r < DJ_ROWS.length; r++) {
       var row = [];
       for (var s = 0; s < STEPS; s++) row.push(rng() < d * (s % 2 === 0 ? 1.3 : 0.8));
@@ -553,109 +633,76 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     return out;
   }
 
-  // ---- Risting ----
+  /* ---------- Risting ---------- */
   function isShake(prev, cur, threshold) {
     if (!prev || !cur) return false;
     var d = Math.abs((cur.x || 0) - (prev.x || 0)) + Math.abs((cur.y || 0) - (prev.y || 0)) + Math.abs((cur.z || 0) - (prev.z || 0));
     return d > threshold;
   }
 
-  // ---- Oppskrift (lenkedeling) ----
-  var RECIPE_SCALE = { pitch: 1, pitchEnd: 1, duration: 100, wetness: 100, flutter: 1, rasp: 100, air: 100, squeak: 100, volume: 100 };
-  function encodeRecipe(params) {
-    var p = normalizeParams(params);
-    return 'v1.' + KEYS.map(function (k) { return Math.round(p[k] * RECIPE_SCALE[k]); }).join('.');
+  /* ---------- Oppskrift (lenkedeling) v2: v2.<opptak>.<fart%>.<volum%>.<rasp%>.<hakk>.<baklengs> ---------- */
+  function encodeRecipe(voice) {
+    var v = normalizeVoice(voice);
+    return ['v2', v.sample, Math.round(v.rate * 100), Math.round(v.volume * 100), Math.round(v.rasp * 100), v.stutter, v.reverse ? 1 : 0].join('.');
   }
   function decodeRecipe(str) {
     if (typeof str !== 'string') return null;
-    var parts = str.trim().split('.');
-    if (parts[0] !== 'v1' || parts.length !== KEYS.length + 1) return null;
-    var o = {};
-    for (var i = 0; i < KEYS.length; i++) {
-      if (!/^-?\d+$/.test(parts[i + 1])) return null;
-      o[KEYS[i]] = Number(parts[i + 1]) / RECIPE_SCALE[KEYS[i]];
-    }
-    return normalizeParams(o);
+    var p = str.trim().split('.');
+    if (p.length !== 7 || p[0] !== 'v2' || !BY_ID[p[1]]) return null;
+    for (var i = 2; i < 7; i++) if (!/^-?\d+$/.test(p[i])) return null;
+    return normalizeVoice({ sample: p[1], rate: p[2] / 100, volume: p[3] / 100, rasp: p[4] / 100, stutter: +p[5], reverse: p[6] === '1' });
   }
 
-  // ---- Lab ----
+  /* ---------- Lab ---------- */
   var LAB_FIELDS = [
-    { key: 'pitch', group: 'Lyd', label: 'Tarmtrykk og tonehøyde', icon: '🎈', min: 30, max: 500, step: 1, unit: ' Hz' },
-    { key: 'drop', group: 'Lyd', label: 'Tonefall', icon: '📉', min: -60, max: 90, step: 1, unit: ' %' },
-    { key: 'duration', group: 'Lyd', label: 'Utblåsingstid', icon: '⏱️', min: 0.1, max: 4, step: 0.05, unit: ' s' },
-    { key: 'volume', group: 'Lyd', label: 'Volum', icon: '📢', min: 0, max: 100, step: 1, unit: ' %' },
-    { key: 'wetness', group: 'Tekstur', label: 'Væskefaktor', icon: '💦', min: 0, max: 100, step: 1, unit: ' %' },
-    { key: 'flutter', group: 'Tekstur', label: 'Flutter', icon: '🫧', min: 1, max: 60, step: 1, unit: ' Hz' },
-    { key: 'rasp', group: 'Tekstur', label: 'Rasp', icon: '🪚', min: 0, max: 100, step: 1, unit: ' %' },
-    { key: 'air', group: 'Spesial', label: 'Snikfaktor', icon: '🥷', min: 0, max: 100, step: 1, unit: ' %' },
-    { key: 'squeak', group: 'Spesial', label: 'Pipe-hale', icon: '🐁', min: 0, max: 100, step: 1, unit: ' %' }
+    { key: 'rate', label: 'Tonehøyde og tempo', icon: '🎈', min: 50, max: 200, step: 1, unit: ' %' },
+    { key: 'volume', label: 'Volum', icon: '📢', min: 0, max: 100, step: 1, unit: ' %' },
+    { key: 'rasp', label: 'Rasp', icon: '🪚', min: 0, max: 100, step: 1, unit: ' %' },
+    { key: 'stutter', label: 'Hakking', icon: '🔁', min: 0, max: 4, step: 1, unit: ' ×' }
   ];
   function labField(key) { for (var i = 0; i < LAB_FIELDS.length; i++) if (LAB_FIELDS[i].key === key) return LAB_FIELDS[i]; return null; }
-
-  function paramsToLab(params) {
-    var p = normalizeParams(params);
-    var pct = function (v) { return Math.round(v * 100); };
-    return {
-      pitch: Math.round(p.pitch),
-      drop: Math.round(clamp((1 - p.pitchEnd / p.pitch) * 100, -60, 90)),
-      duration: Math.round(p.duration * 20) / 20,
-      volume: pct(p.volume), wetness: pct(p.wetness),
-      flutter: Math.round(p.flutter), rasp: pct(p.rasp), air: pct(p.air), squeak: pct(p.squeak)
-    };
+  function voiceToLab(voice) {
+    var v = normalizeVoice(voice);
+    return { sample: v.sample, rate: Math.round(v.rate * 100), volume: Math.round(v.volume * 100), rasp: Math.round(v.rasp * 100), stutter: v.stutter, reverse: v.reverse };
   }
-  function labToParams(lab) {
+  function labToVoice(lab) {
     var l = lab || {};
-    var pitch = Number(l.pitch);
-    return normalizeParams({
-      pitch: pitch,
-      pitchEnd: Math.round(pitch * (1 - Number(l.drop) / 100)),
-      duration: l.duration,
-      volume: Number(l.volume) / 100, wetness: Number(l.wetness) / 100,
-      flutter: l.flutter, rasp: Number(l.rasp) / 100, air: Number(l.air) / 100, squeak: Number(l.squeak) / 100
-    });
+    return normalizeVoice({ sample: l.sample, rate: num(l.rate, 100) / 100, volume: num(l.volume, 90) / 100, rasp: num(l.rasp, 0) / 100, stutter: l.stutter, reverse: l.reverse });
   }
   function randomLab(rng) {
-    var lab = {};
-    for (var i = 0; i < LAB_FIELDS.length; i++) {
-      var f = LAB_FIELDS[i];
-      var steps = Math.round((f.max - f.min) / f.step);
-      lab[f.key] = Math.round((f.min + Math.floor(rng() * (steps + 1)) * f.step) * 100) / 100;
-    }
-    // Hold ting morsomme: mest bass, sjelden helt snikende, alltid hørbar.
-    lab.air = Math.round(lab.air * 0.5);
-    lab.volume = Math.max(60, lab.volume);
-    lab.drop = Math.max(0, lab.drop);
-    return lab;
+    return {
+      sample: pickSample(bank('alle'), rng),
+      rate: 60 + Math.floor(rng() * 111),
+      volume: 70 + Math.floor(rng() * 31),
+      rasp: rng() < 0.5 ? 0 : Math.floor(rng() * 61),
+      stutter: rng() < 0.25 ? 1 + Math.floor(rng() * 3) : 0,
+      reverse: rng() < 0.15
+    };
   }
 
-  // ---- Vibrasjon ----
-  function vibrationPattern(params) {
-    var p = normalizeParams(params);
-    if (p.air > 0.7) return [12];
-    var total = Math.min(p.duration * 1000, 3000);
-    var period = 1000 / p.flutter;
-    var on = Math.max(8, Math.round(period * 0.55));
-    var off = Math.max(8, Math.round(period - on));
-    var out = [], t = 0;
-    while (t + on <= total && out.length < 39) {
-      out.push(on); t += on;
-      if (t + off > total || out.length >= 39) break;
-      out.push(off); t += off;
-    }
-    if (!out.length) out.push(Math.max(8, Math.round(Math.min(total, 20))));
+  /* ---------- Vibrasjon: én puls per utbrudd, spredt over opptaket ---------- */
+  function vibrationPattern(dur, bursts) {
+    var total = Math.max(60, Math.min(Number(dur) || 0, 3) * 1000);
+    var n = clamp(Math.round(Number(bursts) || 1), 1, Math.min(12, Math.floor(total / 40)));
+    var period = total / n;
+    var on = Math.max(15, Math.floor(period * 0.55)), off = Math.max(10, Math.floor(period - on));
+    var out = [];
+    for (var i = 0; i < n; i++) { if (i) out.push(off); out.push(on); }
     return out;
   }
 
   root.PruttCore = {
-    VERSION: VERSION, CHANGELOG: CHANGELOG, DEFAULTS: DEFAULTS, RANGES: RANGES,
-    clamp: clamp, normalizeParams: normalizeParams, mulberry32: mulberry32,
-    buildPitchCurve: buildPitchCurve, buildAmpEnvelope: buildAmpEnvelope,
+    VERSION: VERSION, CHANGELOG: CHANGELOG, clamp: clamp, mulberry32: mulberry32,
+    SOURCES: SOURCES, SAMPLES: SAMPLES, sample: sample, sampleUrl: sampleUrl, sampleLabel: sampleLabel,
+    BANK_RULES: BANK_RULES, bank: bank, pickSample: pickSample,
+    VOICE_DEFAULTS: VOICE_DEFAULTS, VOICE_RANGES: VOICE_RANGES, normalizeVoice: normalizeVoice,
+    stutterPlan: stutterPlan, voiceDuration: voiceDuration,
     THREATS: THREATS, SCAPEGOATS: SCAPEGOATS, computeStats: computeStats,
     PRESETS: PRESETS, ROOMS: ROOMS, formatTime: formatTime,
     STEPS: STEPS, DJ_ROWS: DJ_ROWS, DEFAULT_PATTERN: DEFAULT_PATTERN, stepDuration: stepDuration,
-    isValidPattern: isValidPattern, toggleStep: toggleStep, randomPattern: randomPattern,
-    isShake: isShake, encodeRecipe: encodeRecipe, decodeRecipe: decodeRecipe,
-    LAB_FIELDS: LAB_FIELDS, labField: labField, paramsToLab: paramsToLab, labToParams: labToParams, randomLab: randomLab,
+    isValidPattern: isValidPattern, toggleStep: toggleStep, randomPattern: randomPattern, isShake: isShake,
+    encodeRecipe: encodeRecipe, decodeRecipe: decodeRecipe,
+    LAB_FIELDS: LAB_FIELDS, labField: labField, voiceToLab: voiceToLab, labToVoice: labToVoice, randomLab: randomLab,
     vibrationPattern: vibrationPattern
   };
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -675,10 +722,17 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     set: function (k, v) { try { localStorage.setItem('prutt.' + k, JSON.stringify(v)); } catch (e) {} }
   };
   var reduceMotion = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var pick = function (arr) { return arr[Math.floor(Math.random() * arr.length)]; };
+  var rng = C.mulberry32((Math.random() * 4294967296) >>> 0);
+  var pick = function (arr) { return arr[Math.floor(rng() * arr.length)]; };
+  var lastPick = {};
+  function pickFrom(bankName) {
+    var id = C.pickSample(C.bank(bankName), rng, lastPick[bankName]);
+    lastPick[bankName] = id;
+    return id;
+  }
 
-  /* ================= LYDMOTOR ================= */
-  var ac = null, master, comp, analyser, dryGain, wetGain, convolver, whiteBuf, brownBuf;
+  /* ================= LYDMOTOR: ekte opptak ================= */
+  var ac = null, master, comp, analyser, dryGain, wetGain, convolver;
   var muted = !!store.get('muted', false);
   var roomId = store.get('room', 'stue');
   if (!C.ROOMS.some(function (r) { return r.id === roomId; })) roomId = 'stue';
@@ -689,29 +743,70 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
       var AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return null;
       ac = new AC();
-      master = ac.createGain(); master.gain.value = muted ? 0 : 0.9;
+      master = ac.createGain(); master.gain.value = muted ? 0 : 1;
       comp = ac.createDynamicsCompressor();
-      comp.threshold.value = -14; comp.knee.value = 10; comp.ratio.value = 6; comp.attack.value = 0.003; comp.release.value = 0.2;
+      comp.threshold.value = -12; comp.knee.value = 8; comp.ratio.value = 4; comp.attack.value = 0.003; comp.release.value = 0.2;
       dryGain = ac.createGain(); wetGain = ac.createGain(); convolver = ac.createConvolver();
       master.connect(dryGain); master.connect(convolver); convolver.connect(wetGain);
       dryGain.connect(comp); wetGain.connect(comp);
       analyser = ac.createAnalyser(); analyser.fftSize = 1024;
       comp.connect(analyser); analyser.connect(ac.destination);
-      whiteBuf = makeNoise(2, false); brownBuf = makeNoise(2, true);
       applyRoom();
+      C.SAMPLES.forEach(function (s) { loadBuffer(s.id).catch(function () {}); });
     }
     if (ac.state === 'suspended') ac.resume();
     return ac;
   }
 
-  function makeNoise(seconds, brown) {
-    var len = Math.floor(ac.sampleRate * seconds);
-    var buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0), last = 0;
-    for (var i = 0; i < len; i++) {
-      var w = Math.random() * 2 - 1;
-      if (brown) { last = (last + 0.02 * w) / 1.02; d[i] = last * 3.5; } else d[i] = w;
+  // Henter bytes med en gang siden lastes, dekoder når lyden er låst opp.
+  var raw = {}, decoding = {}, ready = {}, rawCount = 0, loadError = false;
+  function fetchRaw(id) {
+    if (!raw[id]) {
+      raw[id] = fetch(C.sampleUrl(id)).then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.arrayBuffer();
+      }).then(function (ab) { rawCount++; renderLoad(); return ab; });
+      raw[id].catch(function () { raw[id] = null; onLoadError(); });
     }
-    return buf;
+    return raw[id];
+  }
+  function decode(ab) {
+    return new Promise(function (res, rej) {
+      var p = ac.decodeAudioData(ab, res, rej);
+      if (p && p.then) p.then(res, rej);
+    });
+  }
+  function loadBuffer(id) {
+    if (ready[id]) return Promise.resolve(ready[id]);
+    if (!decoding[id]) {
+      decoding[id] = fetchRaw(id).then(function (ab) { return decode(ab.slice(0)); })
+        .then(function (buf) { ready[id] = buf; return buf; })
+        .catch(function (e) { decoding[id] = null; throw e; });
+    }
+    return decoding[id];
+  }
+  function renderLoad() {
+    var el = $('#loadStatus');
+    if (loadError) el.textContent = '· opptak utilgjengelige';
+    else el.textContent = rawCount < C.SAMPLES.length ? '· laster opptak ' + rawCount + '/' + C.SAMPLES.length : '· ' + C.SAMPLES.length + ' ekte opptak klare';
+  }
+  function onLoadError() {
+    if (loadError) return;
+    loadError = true; renderLoad();
+    toast(location.protocol === 'file:'
+      ? 'Lydene kan ikke lastes når filen åpnes direkte. Åpne kilemann.github.io/prutto.io/'
+      : 'Klarte ikke å laste lydene – sjekk nettet 📡');
+  }
+
+  var revCache = {};
+  function reversed(id, buf) {
+    if (revCache[id]) return revCache[id];
+    var r = ac.createBuffer(buf.numberOfChannels, buf.length, buf.sampleRate);
+    for (var ch = 0; ch < buf.numberOfChannels; ch++) {
+      var src = buf.getChannelData(ch), dst = r.getChannelData(ch);
+      for (var i = 0, n = src.length; i < n; i++) dst[i] = src[n - 1 - i];
+    }
+    return (revCache[id] = r);
   }
   function makeImpulse(seconds) {
     var len = Math.max(1, Math.floor(ac.sampleRate * seconds));
@@ -733,127 +828,105 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     dryGain.gain.setTargetAtTime(1 - room.mix * 0.5, t, 0.05);
     wetGain.gain.setTargetAtTime(room.decay > 0 ? room.mix : 0, t, 0.05);
   }
-
   var distCache = {};
   function distCurve(amount) {
     var key = Math.round(amount * 10);
     if (distCache[key]) return distCache[key];
-    var k = key * 8, n = 1024, c = new Float32Array(n);
+    var k = key * 6, n = 1024, c = new Float32Array(n);
     for (var i = 0; i < n; i++) { var x = i * 2 / n - 1; c[i] = k === 0 ? x : (1 + k) * x / (1 + k * Math.abs(x)); }
     return (distCache[key] = c);
   }
 
-  // Bygger én promp av oscillatorer, støy, filtre og konvolutter.
-  function synth(p, t0) {
-    var rate = 200, rng = C.mulberry32((Math.random() * 4294967296) >>> 0), dur = p.duration;
-    var pitch = C.buildPitchCurve(p, rate, rng);
-    var amp = C.buildAmpEnvelope(p, rate, rng);
-    var sub = pitch.map(function (f) { return Math.max(20, f * 0.5); });
-    var cut = pitch.map(function (f) { return Math.min(8000, 250 + f * (5 + p.rasp * 6)); });
-    var end = t0 + dur + 0.05;
-    var nodes = [];
-
-    var voice = ac.createGain(); voice.gain.value = p.volume; voice.connect(master);
-    var vca = ac.createGain(); vca.gain.value = 0; vca.gain.setValueCurveAtTime(amp, t0, dur); vca.connect(voice);
-    nodes.push(voice, vca);
-
-    // Tone: sagtann + firkant-sub gjennom forvrengning og resonant lavpass.
-    var toneLvl = 1 - 0.85 * p.air;
-    if (toneLvl > 0.02) {
-      var o1 = ac.createOscillator(); o1.type = 'sawtooth'; o1.frequency.setValueCurveAtTime(pitch, t0, dur);
-      var o2 = ac.createOscillator(); o2.type = 'square'; o2.frequency.setValueCurveAtTime(sub, t0, dur);
-      var g2 = ac.createGain(); g2.gain.value = 0.45;
-      var sh = ac.createWaveShaper(); sh.curve = distCurve(p.rasp); sh.oversample = '2x';
-      var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 3 + p.rasp * 8; lp.frequency.setValueCurveAtTime(cut, t0, dur);
-      var tg = ac.createGain(); tg.gain.value = toneLvl * 0.7;
-      o1.connect(sh); o2.connect(g2); g2.connect(sh); sh.connect(lp); lp.connect(tg); tg.connect(vca);
-      o1.start(t0); o2.start(t0); o1.stop(end); o2.stop(end);
-      nodes.push(o1, o2, g2, sh, lp, tg);
+  function schedule(buf, v, t, maxLen) {
+    if (v.reverse) buf = reversed(v.sample, buf);
+    var out = ac.createGain(); out.gain.value = v.volume; out.connect(master);
+    var head = out, nodes = [out];
+    if (v.rasp > 0.01) {
+      var pre = ac.createGain(); pre.gain.value = 1 + v.rasp * 3;
+      var sh = ac.createWaveShaper(); sh.curve = distCurve(v.rasp); sh.oversample = '2x';
+      var post = ac.createGain(); post.gain.value = 1 / (1 + v.rasp * 1.5);
+      pre.connect(sh); sh.connect(post); post.connect(out);
+      head = pre; nodes.push(pre, sh, post);
     }
-    // Luft: susende hvit støy (snikeren).
-    if (p.air > 0.02) {
-      var na = ac.createBufferSource(); na.buffer = whiteBuf; na.loop = true;
-      var bpA = ac.createBiquadFilter(); bpA.type = 'bandpass'; bpA.frequency.value = 900 + p.pitch * 2; bpA.Q.value = 0.8;
-      var gA = ac.createGain(); gA.gain.value = p.air * 0.9;
-      na.connect(bpA); bpA.connect(gA); gA.connect(vca);
-      na.start(t0, Math.random() * 1.5); na.stop(end);
-      nodes.push(na, bpA, gA);
-    }
-    // Væske: brun støy rundt 300–800 Hz.
-    var nw = ac.createBufferSource(); nw.buffer = brownBuf; nw.loop = true;
-    var bpW = ac.createBiquadFilter(); bpW.type = 'bandpass'; bpW.frequency.value = 300 + p.wetness * 500; bpW.Q.value = 1.3;
-    var gW = ac.createGain(); gW.gain.value = 0.12 + 0.75 * p.wetness;
-    nw.connect(bpW); bpW.connect(gW); gW.connect(vca);
-    nw.start(t0, Math.random() * 1.5); nw.stop(end);
-    nodes.push(nw, bpW, gW);
-
-    // Bobler: korte, synkende «plopp».
-    var bubbles = Math.round(p.wetness * dur * 10);
-    for (var i = 0; i < bubbles; i++) {
-      var bt = t0 + rng() * dur * 0.9, bl = 0.025 + rng() * 0.04, bf = 180 + rng() * 420;
-      var bo = ac.createOscillator(); bo.type = 'sine';
-      bo.frequency.setValueAtTime(bf, bt); bo.frequency.exponentialRampToValueAtTime(bf * 0.45, bt + bl);
-      var bg = ac.createGain(); bg.gain.setValueAtTime(0.0001, bt);
-      bg.gain.exponentialRampToValueAtTime(0.25 * p.wetness, bt + 0.004); bg.gain.exponentialRampToValueAtTime(0.0001, bt + bl);
-      bo.connect(bg); bg.connect(voice); bo.start(bt); bo.stop(bt + bl + 0.02);
-      nodes.push(bo, bg);
-    }
-    // Pipe-hale: lite «fiiip» helt på slutten.
-    if (p.squeak > 0.05) {
-      var st = t0 + dur * 0.82, sl = 0.16;
-      var so = ac.createOscillator(); so.type = 'triangle';
-      so.frequency.setValueAtTime(700, st); so.frequency.exponentialRampToValueAtTime(1400, st + sl);
-      var sg = ac.createGain(); sg.gain.setValueAtTime(0.0001, st);
-      sg.gain.exponentialRampToValueAtTime(0.2 * p.squeak, st + 0.02); sg.gain.exponentialRampToValueAtTime(0.0001, st + sl);
-      so.connect(sg); sg.connect(voice); so.start(st); so.stop(st + sl + 0.02);
-      nodes.push(so, sg);
-    }
+    var plan = C.stutterPlan(v.stutter, buf.duration, v.rate), end = t;
+    plan.forEach(function (seg) {
+      var st = t + seg.at, len = seg.length / v.rate;
+      if (maxLen) len = Math.min(len, t + maxLen - st);
+      if (len <= 0.01) return;
+      var src = ac.createBufferSource(); src.buffer = buf; src.playbackRate.value = v.rate;
+      var g = ac.createGain(), fade = Math.min(0.02, len / 4);
+      g.gain.setValueAtTime(0, st); g.gain.linearRampToValueAtTime(1, st + 0.004);
+      g.gain.setValueAtTime(1, st + len - fade); g.gain.linearRampToValueAtTime(0, st + len);
+      src.connect(g); g.connect(head);
+      src.start(st, seg.offset); src.stop(st + len + 0.01);
+      nodes.push(src, g); end = Math.max(end, st + len);
+    });
     setTimeout(function () { nodes.forEach(function (n) { try { n.disconnect(); } catch (e) {} }); },
-      (t0 - ac.currentTime + dur + 0.6) * 1000);
+      (end - ac.currentTime + 0.5) * 1000);
   }
 
-  // Offentlig avspilling. opts: when (absolutt AudioContext-tid), delay (sek), light, origin (element), name.
-  function playFart(params, opts) {
+  // Spiller én stemme. opts: when (absolutt tid), delay (s), maxLen (s), light, origin, name.
+  function playVoice(voice, opts) {
     opts = opts || {};
-    var p = C.normalizeParams(params);
+    var v = C.normalizeVoice(voice);
+    var dur = C.voiceDuration(v, opts.maxLen);
     var ctx = ensureAudio();
-    var delay = opts.delay || 0;
-    if (ctx) {
-      var t = opts.when || (ctx.currentTime + 0.02 + delay);
-      if (!muted) synth(p, t);
-      delay = Math.max(0, t - ctx.currentTime);
-    }
-    setTimeout(function () { effects(p, opts); markActive(p.duration); }, delay * 1000);
+    var fire = function (delaySec) {
+      setTimeout(function () { effects(v, dur, opts); markActive(dur); }, Math.max(0, delaySec) * 1000);
+    };
+    if (!ctx) { fire(opts.delay || 0); return; }
+    var go = function (buf) {
+      var t = opts.when || (ctx.currentTime + 0.012 + (opts.delay || 0));
+      if (opts.when && t < ctx.currentTime) return;
+      if (!muted) schedule(buf, v, t, opts.maxLen);
+      fire(t - ctx.currentTime);
+    };
+    if (ready[v.sample]) go(ready[v.sample]);
+    else loadBuffer(v.sample).then(go, function () { fire(opts.delay || 0); });
   }
 
+  function mainLayer(pr) { return pr.layers.filter(function (l) { return l.main; })[0] || pr.layers[0]; }
   function playPreset(pr, origin) {
+    var main = mainLayer(pr), total = 0;
+    if (pr.burst) {
+      var L = pr.layers[0];
+      for (var i = 0; i < pr.burst.count; i++) {
+        var v = Object.assign({}, L, { sample: pickFrom(L.bank), rate: L.rate * (1 - i * pr.burst.rateStep) });
+        playVoice(v, { delay: i * pr.burst.gap, maxLen: L.maxLen, origin: origin, name: pr.name, light: i > 0 });
+      }
+      total = pr.burst.count * pr.burst.gap + L.maxLen;
+    } else {
+      pr.layers.forEach(function (L) {
+        var v = Object.assign({}, L, { sample: pickFrom(L.bank) });
+        playVoice(v, { delay: L.delay || 0, maxLen: L.maxLen, origin: origin, name: pr.name, light: L !== main });
+        total = Math.max(total, (L.delay || 0) + C.voiceDuration(v, L.maxLen));
+      });
+    }
     if (origin) {
       origin.classList.add('playing');
-      var total = pr.burst ? pr.burst.count * pr.burst.gap + pr.params.duration : pr.params.duration;
-      setTimeout(function () { origin.classList.remove('playing'); }, total * 1000 + 100);
+      setTimeout(function () { origin.classList.remove('playing'); }, total * 1000 + 150);
     }
-    if (pr.burst) {
-      for (var i = 0; i < pr.burst.count; i++) {
-        var p = Object.assign({}, pr.params, { pitch: pr.params.pitch - i * pr.burst.pitchStep });
-        playFart(p, { delay: i * pr.burst.gap, origin: origin, name: pr.name, light: i > 0 });
-      }
-    } else playFart(pr.params, { origin: origin, name: pr.name });
   }
-  function randomPreset() { return pick(C.PRESETS); }
+  function presetById(id) { return C.PRESETS.filter(function (p) { return p.id === id; })[0]; }
+  function surprise(origin) {
+    playVoice({ sample: pickFrom('alle'), rate: 0.8 + rng() * 0.5, volume: 1, rasp: rng() < 0.3 ? 0.3 : 0 }, { origin: origin, name: 'Overraskelsen' });
+  }
 
   /* ================= EFFEKTER ================= */
   var count = Number(store.get('count', 0)) || 0;
   function setText(sel, txt) { var el = $(sel); if (el) el.textContent = txt; }
 
-  function effects(p, opts) {
-    var s = C.computeStats(p);
-    setText('#stName', opts.name || 'Mystisk utslipp');
-    setText('#stDb', s.db + ' dB');
-    $('#stStenchBar').style.width = s.stench + '%';
-    setText('#stStench', s.stench + ' %');
-    var th = $('#stThreat'); th.textContent = s.threat; th.dataset.level = s.threatIndex;
-    setText('#stComplaint', s.complaint + ' %');
-    setText('#stBlame', pick(C.SCAPEGOATS));
+  function effects(v, dur, opts) {
+    var s = C.computeStats(v), smp = C.sample(v.sample);
+    if (!opts.light || opts.name) {
+      setText('#stName', opts.name || 'Mystisk utslipp');
+      setText('#stDb', s.db + ' dB');
+      $('#stStenchBar').style.width = s.stench + '%';
+      setText('#stStench', s.stench + ' %');
+      var th = $('#stThreat'); th.textContent = s.threat; th.dataset.level = s.threatIndex;
+      setText('#stComplaint', s.complaint + ' %');
+      setText('#stBlame', pick(C.SCAPEGOATS));
+    }
     count++; store.set('count', count);
     setText('#stCount', count.toLocaleString('nb-NO'));
 
@@ -862,28 +935,27 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
       if (!reduceMotion && s.db >= 100) {
         var app = $('#app'); app.classList.remove('shake'); void app.offsetWidth; app.classList.add('shake');
       }
-      if (navigator.vibrate) { try { navigator.vibrate(C.vibrationPattern(p)); } catch (e) {} }
+      if (navigator.vibrate) { try { navigator.vibrate(C.vibrationPattern(dur, smp.bursts)); } catch (e) {} }
     }
     var n = opts.light ? 2 : (reduceMotion ? 4 : 8 + Math.round(s.db / 12));
-    if (opts.origin || !opts.light) burst(opts.origin, n, p, s);
+    if (opts.origin || !opts.light) burst(opts.origin, n, smp, s);
   }
 
-  // Gasskyer som stiger fra knappen du trykket på.
   var fx = $('#fx'), fctx = fx.getContext('2d'), parts = [], fxRaf = 0;
   function sizeFx() {
     var d = window.devicePixelRatio || 1;
     fx.width = innerWidth * d; fx.height = innerHeight * d;
     fctx.setTransform(d, 0, 0, d, 0, 0);
   }
-  function burst(el, n, p, s) {
+  function burst(el, n, smp, s) {
     var x = innerWidth / 2, y = innerHeight * 0.6;
     if (el && el.getBoundingClientRect) {
       var r = el.getBoundingClientRect();
       if (r.width) { x = r.left + r.width / 2; y = r.top + r.height / 2; }
     }
     var emo = ['💨', '💨', '☁️', '🤢', '☣️'];
-    if (p.wetness > 0.6) emo.push('💦', '💩');
-    if (p.air > 0.6) emo = ['💨', '😶‍🌫️', '🤫', '☠️'];
+    if (smp.bursts >= 9) emo.push('💦', '💩');
+    if (smp.flat >= 0.37) emo = ['💨', '😶‍🌫️', '🤫', '☠️'];
     if (s.db > 120) emo.push('💥', '🌋');
     for (var i = 0; i < n; i++) {
       parts.push({ x: x + (Math.random() - 0.5) * 30, y: y, vx: (Math.random() - 0.5) * 4, vy: -(1.5 + Math.random() * 3.5),
@@ -906,7 +978,6 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     if (!fxRaf) fctx.clearRect(0, 0, innerWidth, innerHeight);
   }
 
-  // Oscilloskop: tegner bølgeformen bare når noe spilles.
   var scope = $('#scope'), sctx = scope.getContext('2d'), activeUntil = 0, scopeRaf = 0, scopeData = null;
   function sizeScope() {
     var d = window.devicePixelRatio || 1, r = scope.getBoundingClientRect();
@@ -945,22 +1016,20 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
   var toastTimer = 0;
   function toast(msg) {
     var t = $('#toast'); t.textContent = msg; t.classList.add('show');
-    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2600);
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 3200);
   }
 
   /* ================= LYD AV/PÅ & AKUSTIKK ================= */
   function renderMute() {
-    var b = $('#muteBtn');
-    b.setAttribute('aria-pressed', String(muted));
+    $('#muteBtn').setAttribute('aria-pressed', String(muted));
     setText('#muteIcon', muted ? '🔇' : '🔊');
     setText('#muteText', muted ? 'Lyd av' : 'Lyd på');
   }
   $('#muteBtn').addEventListener('click', function () {
     muted = !muted; store.set('muted', muted); renderMute();
-    if (ac) master.gain.setTargetAtTime(muted ? 0 : 0.9, ac.currentTime, 0.02);
+    if (ac) master.gain.setTargetAtTime(muted ? 0 : 1, ac.currentTime, 0.02);
     toast(muted ? '🔇 Lyd av – gassen siver ut i stillhet' : '🔊 Lyd på');
   });
-
   function renderRooms() {
     $('#roomChips').innerHTML = C.ROOMS.map(function (r) {
       return '<button class="chip" data-room="' + r.id + '" aria-pressed="' + (r.id === roomId) + '">' + r.icon + ' ' + r.label + '</button>';
@@ -970,7 +1039,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     var b = e.target.closest('[data-room]'); if (!b) return;
     roomId = b.dataset.room; store.set('room', roomId); renderRooms();
     ensureAudio(); applyRoom();
-    playFart({ pitch: 140, pitchEnd: 70, duration: 0.5, wetness: 0.3, flutter: 16, rasp: 0.4, air: 0, volume: 0.8 }, { origin: b, light: true, name: 'Akustikktest' });
+    playVoice({ sample: pickFrom('middels'), volume: 0.9 }, { origin: b, light: true, name: 'Akustikktest: ' + b.textContent.trim() });
   });
 
   /* ================= FANER ================= */
@@ -1004,33 +1073,38 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
         '<span class="pad-desc">' + pr.desc + '</span></button>';
     }).join('');
   }
-  function presetById(id) { return C.PRESETS.filter(function (p) { return p.id === id; })[0]; }
   $('#board').addEventListener('click', function (e) {
     var b = e.target.closest('.pad'); if (b) playPreset(presetById(b.dataset.id), b);
   });
-  $('#surpriseBtn').addEventListener('click', function (e) { playPreset(randomPreset(), e.currentTarget); });
+  $('#surpriseBtn').addEventListener('click', function (e) { surprise(e.currentTarget); });
   document.addEventListener('keydown', function (e) {
-    if (e.target.closest && e.target.closest('input,textarea') || e.metaKey || e.ctrlKey || e.altKey) return;
+    if ((e.target.closest && e.target.closest('input,textarea,select')) || e.metaKey || e.ctrlKey || e.altKey) return;
     var n = parseInt(e.key, 10);
     if (n >= 1 && n <= C.PRESETS.length) {
       var pad = $$('.pad')[n - 1];
       pad.classList.add('pressed'); setTimeout(function () { pad.classList.remove('pressed'); }, 120);
       playPreset(C.PRESETS[n - 1], $('#panel-board').hidden ? null : pad);
-    } else if (e.key === '0') playPreset(randomPreset(), null);
+    } else if (e.key === '0') surprise(null);
   });
   if (window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches) $('#keyHint').hidden = false;
 
   /* ================= LAB ================= */
-  var lab = C.paramsToLab(C.DEFAULTS), labShots = 0;
-  function fmt(f, v) { return (f.step < 1 ? Number(v).toFixed(2) : String(Math.round(v))) + f.unit; }
+  var lab = C.voiceToLab({ sample: 'frt755' }), labShots = 0;
+  function fmt(f, v) { return String(Math.round(v)) + f.unit; }
   function renderLab() {
-    var html = '', group = '';
+    var opts = C.SAMPLES.slice().sort(function (a, b) { return a.cen - b.cen; }).map(function (s) {
+      return '<option value="' + s.id + '">' + C.sampleLabel(s.id) + '</option>';
+    }).join('');
+    var html = '<div class="group-title">Opptak</div>' +
+      '<div class="sample-row"><select id="labSample" aria-label="Velg opptak">' + opts + '</select>' +
+      '<button class="btn" id="labPreview" aria-label="Lytt til opptaket">▶</button></div>' +
+      '<div class="group-title">Behandling</div>';
     C.LAB_FIELDS.forEach(function (f) {
-      if (f.group !== group) { group = f.group; html += '<div class="group-title">' + group + '</div>'; }
       html += '<div class="field"><div class="field-top"><label for="lab-' + f.key + '">' + f.icon + ' ' + f.label + '</label>' +
         '<output id="out-' + f.key + '" for="lab-' + f.key + '"></output></div>' +
         '<input type="range" id="lab-' + f.key + '" data-key="' + f.key + '" min="' + f.min + '" max="' + f.max + '" step="' + f.step + '"></div>';
     });
+    html += '<label class="toggle"><input type="checkbox" id="labReverse"><span>⏪ Baklengs</span></label>';
     $('#labFields').innerHTML = html;
     $('#labPresets').innerHTML = C.PRESETS.map(function (pr) {
       return '<button class="chip" data-id="' + pr.id + '">' + pr.icon + ' ' + pr.title + '</button>';
@@ -1038,46 +1112,57 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     syncLab();
   }
   function syncLab() {
+    $('#labSample').value = lab.sample;
     C.LAB_FIELDS.forEach(function (f) {
       $('#lab-' + f.key).value = lab[f.key];
       setText('#out-' + f.key, fmt(f, lab[f.key]));
     });
+    $('#labReverse').checked = !!lab.reverse;
   }
+  function clearLabChips() { $$('#labPresets .chip').forEach(function (c) { c.removeAttribute('aria-pressed'); }); }
   $('#labFields').addEventListener('input', function (e) {
     var k = e.target.dataset.key; if (!k) return;
     lab[k] = Number(e.target.value);
     setText('#out-' + k, fmt(C.labField(k), lab[k]));
-    $$('#labPresets .chip').forEach(function (c) { c.removeAttribute('aria-pressed'); });
+    clearLabChips();
+  });
+  $('#labFields').addEventListener('change', function (e) {
+    if (e.target.id === 'labSample') {
+      lab.sample = e.target.value; clearLabChips();
+      playVoice(C.labToVoice(lab), { origin: e.target, light: true, name: 'Lytter på ' + lab.sample });
+    } else if (e.target.id === 'labReverse') { lab.reverse = e.target.checked; clearLabChips(); }
+  });
+  $('#labFields').addEventListener('click', function (e) {
+    if (e.target.closest('#labPreview')) playVoice(C.labToVoice(lab), { origin: e.target, light: true, name: 'Lytter på ' + lab.sample });
   });
   $('#labPresets').addEventListener('click', function (e) {
     var b = e.target.closest('[data-id]'); if (!b) return;
-    var pr = presetById(b.dataset.id);
-    lab = C.paramsToLab(pr.params); syncLab();
+    var pr = presetById(b.dataset.id), L = mainLayer(pr);
+    lab = C.voiceToLab(Object.assign({}, L, { sample: pickFrom(L.bank) })); syncLab();
     $$('#labPresets .chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c === b)); });
-    playFart(pr.params, { origin: b, name: pr.name + ' (lab)' });
+    playVoice(C.labToVoice(lab), { origin: b, maxLen: L.maxLen, name: pr.name + ' (lab)' });
   });
   $('#labFire').addEventListener('click', function (e) {
     labShots++;
-    playFart(C.labToParams(lab), { origin: e.currentTarget, name: 'Laboratorieeksperiment #' + labShots });
+    playVoice(C.labToVoice(lab), { origin: e.currentTarget, name: 'Laboratorieeksperiment #' + labShots });
   });
   $('#labRandom').addEventListener('click', function (e) {
-    lab = C.randomLab(C.mulberry32((Math.random() * 4294967296) >>> 0)); syncLab();
-    $$('#labPresets .chip').forEach(function (c) { c.removeAttribute('aria-pressed'); });
-    playFart(C.labToParams(lab), { origin: e.currentTarget, name: 'Tilfeldig mutasjon' });
+    lab = C.randomLab(rng); syncLab(); clearLabChips();
+    playVoice(C.labToVoice(lab), { origin: e.currentTarget, name: 'Tilfeldig mutasjon' });
   });
   $('#labShare').addEventListener('click', function () {
-    var url = location.href.split('#')[0] + '#r=' + C.encodeRecipe(C.labToParams(lab));
+    var url = location.href.split('#')[0] + '#r=' + C.encodeRecipe(C.labToVoice(lab));
     if (navigator.share) {
-      navigator.share({ title: 'Prutt-O-Teket-oppskrift', text: 'Hør på denne mesterpromp-oppskriften 💨', url: url }).catch(function () {});
+      navigator.share({ title: 'Prutt-O-Teket-oppskrift', text: 'Hør på denne mesterprompen 💨', url: url }).catch(function () {});
     } else if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(function () { toast('🔗 Lenke kopiert!'); }, function () { prompt('Kopier lenken:', url); });
     } else prompt('Kopier lenken:', url);
   });
   function loadRecipeFromHash() {
     var m = location.hash.match(/^#r=(.+)$/); if (!m) return;
-    var p = C.decodeRecipe(decodeURIComponent(m[1]));
-    if (!p) { toast('Oppskriften var ugyldig 🤔'); return; }
-    lab = C.paramsToLab(p); syncLab(); switchTab('lab');
+    var v = C.decodeRecipe(decodeURIComponent(m[1]));
+    if (!v) { toast('Oppskriften var ugyldig eller for gammel 🤔'); return; }
+    lab = C.voiceToLab(v); syncLab(); switchTab('lab');
     toast('🧪 Oppskrift lastet – trykk «Fyr av»!');
   }
 
@@ -1109,8 +1194,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     var rem = (endAt - Date.now()) / 1000;
     if (rem <= 0) {
       stopTimer(); hideStealth();
-      var big = C.PRESETS.filter(function (p) { return C.computeStats(p.params).db >= 100; });
-      playPreset(pick(big), $('#timerDisplay'));
+      playPreset(presetById(pick(['sjefen', 'taco', 'orkan', 'vaate', 'mus'])), $('#timerDisplay'));
       return;
     }
     renderTimer(rem);
@@ -1142,7 +1226,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
   }
   function shakeFart() {
     var now = Date.now(); if (now - lastShake < 700) return;
-    lastShake = now; playPreset(randomPreset(), $('#shakeStatusBox'));
+    lastShake = now; playPreset(pick(C.PRESETS), $('#shakeStatusBox'));
   }
   function setShake(on) {
     shakeOn = on; lastAcc = null;
@@ -1166,7 +1250,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
   var pattern = store.get('pattern', null);
   if (!C.isValidPattern(pattern)) pattern = C.DEFAULT_PATTERN.map(function (r) { return r.slice(); });
   var bpm = C.clamp(Number(store.get('bpm', 120)) || 120, 60, 200);
-  var djOn = false, djTimer = 0, nextTime = 0, djStep = 0;
+  var djOn = false, djStarting = false, djTimer = 0, nextTime = 0, djStep = 0, rowLast = {};
 
   function renderDj() {
     $('#djGrid').innerHTML = C.DJ_ROWS.map(function (row, r) {
@@ -1178,67 +1262,92 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     }).join('');
     $('#djBpm').value = bpm; setText('#djBpmOut', bpm + ' BPM');
   }
+  function rowVoice(r) {
+    var row = C.DJ_ROWS[r];
+    var avail = C.bank(row.bank).filter(function (id) { return ready[id]; });
+    var id = C.pickSample(avail.length ? avail : C.bank(row.bank), rng, rowLast[r]);
+    rowLast[r] = id;
+    return { sample: id, rate: row.rate, volume: row.volume };
+  }
   $('#djGrid').addEventListener('click', function (e) {
     var c = e.target.closest('.cell'); if (!c) return;
     var r = +c.dataset.r, s = +c.dataset.s;
     pattern = C.toggleStep(pattern, r, s); store.set('pattern', pattern);
     c.setAttribute('aria-pressed', String(pattern[r][s]));
-    if (pattern[r][s] && !djOn) playFart(C.DJ_ROWS[r].params, { origin: c, light: true, name: 'DJ: ' + C.DJ_ROWS[r].label });
+    if (pattern[r][s] && !djOn) playVoice(rowVoice(r), { origin: c, light: true, maxLen: C.DJ_ROWS[r].maxLen, name: 'DJ: ' + C.DJ_ROWS[r].label });
   });
   $('#djBpm').addEventListener('input', function (e) { bpm = +e.target.value; store.set('bpm', bpm); setText('#djBpmOut', bpm + ' BPM'); });
-  function highlightStep(s) {
-    $$('.cell').forEach(function (c) { c.classList.toggle('now', +c.dataset.s === s); });
-  }
-  function schedule() {
+  function highlightStep(s) { $$('.cell').forEach(function (c) { c.classList.toggle('now', +c.dataset.s === s); }); }
+  function scheduleDj() {
     var stepLen = C.stepDuration(bpm);
     while (nextTime < ac.currentTime + 0.12) {
       var s = djStep, t = nextTime;
       C.DJ_ROWS.forEach(function (row, r) {
         if (!pattern[r][s]) return;
-        var p = Object.assign({}, row.params, { duration: Math.min(row.params.duration, stepLen * 1.8) });
         var cell = $('.cell[data-r="' + r + '"][data-s="' + s + '"]');
-        playFart(p, { when: t, light: true, origin: cell, name: 'DJ: ' + row.label });
+        playVoice(rowVoice(r), { when: t, light: true, origin: cell, maxLen: Math.min(row.maxLen, stepLen * 1.6), name: 'DJ: ' + row.label });
       });
-      setTimeout(function () { if (djOn) highlightStep(s); }, Math.max(0, (t - ac.currentTime) * 1000));
+      (function (step, at) { setTimeout(function () { if (djOn) highlightStep(step); }, Math.max(0, (at - ac.currentTime) * 1000)); })(s, t);
       nextTime += stepLen; djStep = (djStep + 1) % C.STEPS;
     }
   }
-  function setDj(on) {
-    if (on && !ensureAudio()) { toast('Nettleseren din støtter ikke lyd 😢'); return; }
-    djOn = on;
-    clearInterval(djTimer);
-    if (on) { djStep = 0; nextTime = ac.currentTime + 0.06; schedule(); djTimer = setInterval(schedule, 25); }
-    else highlightStep(-1);
+  function renderDjButton() {
     var b = $('#djToggle');
-    b.textContent = on ? 'Stopp beatmaskin 🛑' : 'Start beatmaskin 🎧';
-    b.className = 'btn btn-big ' + (on ? 'btn-red' : 'btn-gas');
+    b.textContent = djStarting ? 'Varmer opp tarmene … ⏳' : djOn ? 'Stopp beatmaskin 🛑' : 'Start beatmaskin 🎧';
+    b.className = 'btn btn-big ' + (djOn ? 'btn-red' : 'btn-gas');
   }
-  $('#djToggle').addEventListener('click', function () { setDj(!djOn); });
+  function setDj(on) {
+    clearInterval(djTimer);
+    if (!on) { djOn = false; djStarting = false; highlightStep(-1); renderDjButton(); return; }
+    if (!ensureAudio()) { toast('Nettleseren din støtter ikke lyd 😢'); return; }
+    var ids = [];
+    C.DJ_ROWS.forEach(function (row) { ids = ids.concat(C.bank(row.bank)); });
+    djStarting = true; renderDjButton();
+    Promise.all(ids.map(function (id) { return loadBuffer(id).catch(function () { return null; }); })).then(function () {
+      if (!djStarting) return;
+      djStarting = false; djOn = true; renderDjButton();
+      djStep = 0; nextTime = ac.currentTime + 0.06; scheduleDj(); djTimer = setInterval(scheduleDj, 25);
+    });
+  }
+  $('#djToggle').addEventListener('click', function () { setDj(!(djOn || djStarting)); });
   $('#djRandom').addEventListener('click', function () {
-    pattern = C.randomPattern(C.mulberry32((Math.random() * 4294967296) >>> 0), 0.35);
+    pattern = C.randomPattern(rng, 0.35);
     store.set('pattern', pattern); renderDj(); toast('🎲 Ny remix!');
   });
   $('#djClear').addEventListener('click', function () {
     pattern = C.DJ_ROWS.map(function () { return new Array(C.STEPS).fill(false); });
     store.set('pattern', pattern); renderDj();
   });
-  document.addEventListener('visibilitychange', function () { if (document.hidden && djOn) setDj(false); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden && (djOn || djStarting)) setDj(false); });
 
   /* ================= FOOTER & OPPSTART ================= */
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function renderFooter() {
     setText('#version', 'v' + C.VERSION);
     $('#changelog').innerHTML = C.CHANGELOG.map(function (v) {
-      return '<h4>v' + v.version + ' – ' + v.date + '</h4><ul>' + v.changes.map(function (c) { return '<li>' + c + '</li>'; }).join('') + '</ul>';
+      return '<h4>v' + v.version + ' – ' + v.date + '</h4><ul>' + v.changes.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>';
     }).join('');
+    var counts = {};
+    C.SAMPLES.forEach(function (s) { counts[s.src] = (counts[s.src] || 0) + 1; });
+    $('#credits').innerHTML = '<p>Alle lydene er ekte opptak med fri lisens, hentet fra Wikimedia Commons via ' +
+      '<a href="https://github.com/jacksongriggs/focus-loop" target="_blank" rel="noopener">focus-loop</a>. ' +
+      'Endret: trimmet, nivåjustert og konvertert til MP3. Endrede CC BY-SA-filer er fortsatt CC BY-SA.</p><ul>' +
+      Object.keys(C.SOURCES).map(function (k) {
+        var s = C.SOURCES[k];
+        return '<li><strong>' + esc(s.author) + '</strong>' + (s.note ? ' (' + esc(s.note) + ')' : '') + ' – ' +
+          '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.title) + '</a>, ' +
+          '<a href="' + esc(s.licenseUrl) + '" target="_blank" rel="noopener">' + esc(s.license) + '</a> · ' + counts[k] + ' opptak</li>';
+      }).join('') + '</ul>';
   }
 
-  renderMute(); renderRooms(); renderBoard(); renderLab(); renderTimer(); renderShake(); renderDj(); renderFooter();
+  renderMute(); renderRooms(); renderBoard(); renderLab(); renderTimer(); renderShake(); renderDj(); renderFooter(); renderLoad();
   setText('#stCount', count.toLocaleString('nb-NO'));
   var savedTab = store.get('tab', 'board'); switchTab(TABS.indexOf(savedTab) >= 0 ? savedTab : 'board');
   sizeFx(); sizeScope();
   window.addEventListener('resize', function () { sizeFx(); sizeScope(); });
   window.addEventListener('hashchange', loadRecipeFromHash);
   loadRecipeFromHash();
+  C.SAMPLES.forEach(function (s) { fetchRaw(s.id).catch(function () {}); });
 })();
 </script>
 </body>
