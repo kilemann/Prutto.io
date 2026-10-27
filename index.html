@@ -374,8 +374,11 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
 (function (root) {
   'use strict';
 
-  var VERSION = '3.0.0';
+  var VERSION = '3.0.1';
   var CHANGELOG = [
+    { version: '3.0.1', date: '2026-10-27', changes: [
+      'Rettet adressen i feilmeldingen: kilemann.github.io/Prutto.io/ med stor P'
+    ] },
     { version: '3.0.0', date: '2026-10-27', changes: [
       'Ekte fiselyder: 44 opptak fra Yle-arkivet og Wikimedia Commons erstatter den syntetiske lydmotoren',
       'Opptakene er målt (lengde, dybde, sprut, sus) og sortert i grupper – hver knapp trekker et nytt opptak hver gang',
@@ -794,7 +797,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     if (loadError) return;
     loadError = true; renderLoad();
     toast(location.protocol === 'file:'
-      ? 'Lydene kan ikke lastes når filen åpnes direkte. Åpne kilemann.github.io/prutto.io/'
+      ? 'Lydene kan ikke lastes når filen åpnes direkte. Åpne kilemann.github.io/Prutto.io/'
       : 'Klarte ikke å laste lydene – sjekk nettet 📡');
   }
 

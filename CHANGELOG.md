@@ -1,5 +1,8 @@
 # Changelog – Prutt-O-Teket Super 3000
 
+## v3.0.1 – 2026-10-27
+- Rettet adressen i feilmeldingen og README: kilemann.github.io/Prutto.io/ med stor P.
+
 ## v3.0.0 – 2026-10-27
 - Ekte fiselyder: 44 opptak fra Yle-arkivet og Wikimedia Commons erstatter den syntetiske lydmotoren.
 - Opptakene er målt (lengde, dybde, sprut, sus) og sortert i grupper. Hver knapp trekker et nytt opptak hver gang, uten å gjenta forrige.

@@ -248,3 +248,9 @@ test('akustikkrom og syndebukker er gyldige', () => {
   for (const r of C.ROOMS) assert.ok(r.mix >= 0 && r.mix <= 1 && r.decay >= 0, r.id);
   assert.ok(C.SCAPEGOATS.length >= 5);
 });
+
+test('adressen til appen er stavet med stor P, som repoet (GitHub Pages skiller på store/små bokstaver)', () => {
+  assert.ok(!/github\.io\/prutto\.io/.test(html), 'index.html');
+  assert.ok(!/github\.io\/prutto\.io/.test(readFileSync(new URL('README.md', root), 'utf8')), 'README.md');
+  assert.ok(html.includes('kilemann.github.io/Prutto.io/'));
+});
