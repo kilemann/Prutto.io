@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Prutt-O-Teket Super 3000</title>
+<meta name="description" content="Norges mest avanserte biologiske lydlaboratorium. Alle lyder syntetiseres live i nettleseren.">
+<meta name="theme-color" content="#0d1326">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💨</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Jua&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#0b1022; --bg2:#1d1544; --card:#1b2140; --card2:#141935; --ink:#000;
+  --text:#f3f6ff; --muted:#a3abd0; --gas:#7cff4f; --gas2:#22c55e; --yellow:#ffd23f;
+  --orange:#ff8a3d; --red:#ff4d5e; --purple:#b67cff;
+  --r:20px; --shadow:0 6px 0 var(--ink);
+  --display:'Jua','Fredoka',system-ui,sans-serif;
+  --body:'Fredoka',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+html{min-height:100%;background-color:var(--bg1);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #24306a 0%, transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, #2b1a5c 0%, transparent 55%),
+    linear-gradient(160deg,var(--bg1),var(--bg2)) var(--bg1);
+}
+body{
+  margin:0; min-height:100vh; color:var(--text); font-family:var(--body);
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent; overflow-x:hidden;
+}
+::selection{background:var(--yellow);color:#000}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+
+#app{max-width:1040px;margin:0 auto;padding:0 16px calc(24px + env(safe-area-inset-bottom))}
+#fx{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:40}
+
+/* --- knapper --- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5em;
+  border:3px solid var(--ink);border-radius:16px;padding:.7em 1.1em;font-weight:700;
+  background:var(--card);box-shadow:0 5px 0 var(--ink);transition:transform .08s,box-shadow .08s,filter .15s;
+  user-select:none;-webkit-user-select:none;
+}
+.btn:hover{filter:brightness(1.12)}
+.btn:active,.btn.pressed{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.btn-gas{background:linear-gradient(180deg,var(--gas),var(--gas2));color:#062}
+.btn-fire{background:linear-gradient(180deg,#ffd23f,#ff6b3d);color:#1a0800}
+.btn-red{background:linear-gradient(180deg,#ff6b7a,#e1263a);color:#fff}
+.btn-yellow{background:linear-gradient(180deg,#ffe066,#f5b700);color:#231800}
+.btn-dark{background:#0a0d1c;color:var(--yellow)}
+.btn-ghost{background:transparent;border-color:#3a4270;box-shadow:none;color:var(--muted);font-weight:600}
+.btn-ghost:active{transform:none}
+.btn-wide{width:100%}
+.btn-big{font-size:1.25rem;padding:.9em 1.2em;font-family:var(--display);letter-spacing:.02em}
+
+/* --- topp --- */
+.top{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin:16px 0 18px;padding:14px 16px;border:4px solid var(--ink);border-radius:24px;
+  background:linear-gradient(100deg,#ffd23f 0%,#9cff5c 45%,#22c55e 100%);box-shadow:0 8px 0 var(--ink);color:#000;
+}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.logo{font-size:2.6rem;display:inline-block;animation:puff 2.4s ease-in-out infinite}
+@keyframes puff{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.15) rotate(-8deg)}}
+h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(1.3rem,6.2vw,2.6rem);white-space:nowrap;line-height:1;letter-spacing:.03em;text-transform:uppercase}
+.sticker{
+  display:table;margin-top:6px;transform:rotate(-6deg) translateY(-2px);font-size:.42em;vertical-align:middle;
+  background:#000;color:var(--yellow);padding:.25em .5em;border-radius:8px;letter-spacing:.06em;
+}
+.tag{margin:.3em 0 0;font-weight:600;font-size:.9rem;opacity:.85}
+#muteBtn{flex-shrink:0;padding:.55em .9em}
+@media(max-width:520px){#muteText{display:none}#muteBtn{padding:.55em .65em;font-size:1.2rem}.tag{font-size:.78rem}.logo{font-size:2.1rem}.top{padding:12px}}
+#muteBtn[aria-pressed="true"]{color:var(--red)}
+
+/* --- paneler --- */
+.panel{background:var(--card);border:4px solid var(--ink);border-radius:26px;box-shadow:0 8px 0 var(--ink);padding:16px}
+.meter{display:grid;gap:14px}
+@media(min-width:760px){.meter{grid-template-columns:1.1fr 1fr}}
+.scope-wrap{position:relative;height:150px;background:#05081a;border:3px solid var(--ink);border-radius:18px;overflow:hidden}
+.scope-wrap::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(124,255,79,.05) 0 1px,transparent 1px 22px),repeating-linear-gradient(90deg,rgba(124,255,79,.05) 0 1px,transparent 1px 22px)}
+#scope{width:100%;height:100%;display:block}
+.scope-hint{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:0 18px;
+  color:var(--gas);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:.78rem;transition:opacity .3s}
+.scope-hint.gone{opacity:0}
+.scope-label{position:absolute;left:10px;bottom:7px;font:600 .62rem var(--mono);color:#5fbf3f;letter-spacing:.14em;text-transform:uppercase;display:flex;gap:6px;align-items:center}
+.led{width:7px;height:7px;border-radius:50%;background:var(--gas);box-shadow:0 0 8px var(--gas);animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+
+.stats{margin:0;background:#05081a;border:3px solid var(--ink);border-radius:18px;padding:10px 14px;font-family:var(--mono);font-size:.8rem}
+.stats>div{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;border-bottom:1px dashed #262d55}
+.stats>div:last-child{border-bottom:0}
+.stats dt{color:var(--muted)}
+.stats dd{margin:0;font-weight:700;text-align:right;color:var(--gas);display:flex;align-items:center;gap:8px;min-width:0}
+#stName{color:var(--yellow);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#stDb{color:var(--orange)}
+#stComplaint{color:var(--purple)}
+#stThreat[data-level="3"]{color:var(--red)} #stThreat[data-level="2"]{color:var(--orange)}
+#stThreat[data-level="1"]{color:var(--yellow)}
+.bar{display:inline-block;width:70px;height:9px;border-radius:9px;background:#1c2246;overflow:hidden;border:1px solid #000}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gas),var(--yellow),var(--red));transition:width .35s cubic-bezier(.2,1.4,.4,1)}
+.stats.pop{animation:pop .35s}
+@keyframes pop{30%{transform:scale(1.025)}}
+
+.rooms{grid-column:1/-1;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rooms-label{font-weight:700;color:var(--muted);font-size:.85rem}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:2px solid var(--ink);background:var(--card2);border-radius:999px;padding:.4em .85em;font-weight:600;font-size:.85rem;box-shadow:0 3px 0 var(--ink);transition:transform .08s}
+.chip:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.chip[aria-pressed="true"]{background:var(--gas);color:#062}
+
+/* --- faner --- */
+.tabs{display:flex;gap:8px;margin:22px 0 16px;padding:6px;background:#0a0d1c;border:3px solid var(--ink);border-radius:20px}
+.tab{flex:1;border:0;background:transparent;border-radius:14px;padding:.75em .4em;font-weight:700;color:var(--muted);font-size:clamp(.82rem,2.8vw,1.05rem);transition:background .2s,color .2s}
+.tab[aria-selected="true"]{background:var(--gas);color:#062;box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+
+/* --- soundboard --- */
+.board{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(min-width:720px){.board{grid-template-columns:repeat(4,1fr)}}
+.pad{
+  position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  min-height:150px;padding:16px 10px 14px;border:4px solid var(--ink);border-radius:24px;color:#0b0b0b;
+  background:linear-gradient(180deg,var(--c1),var(--c2));box-shadow:0 7px 0 var(--ink);
+  transition:transform .08s,box-shadow .08s,filter .15s;overflow:hidden;user-select:none;-webkit-user-select:none;
+}
+.pad::before{content:"";position:absolute;inset:0;background:radial-gradient(120px 60px at 30% 0%,rgba(255,255,255,.45),transparent 70%);pointer-events:none}
+.pad:hover{filter:brightness(1.08)}
+.pad:active,.pad.pressed{transform:translateY(5px);box-shadow:0 2px 0 var(--ink)}
+.pad.playing .pad-icon{animation:wobble .35s ease-in-out infinite}
+@keyframes wobble{0%,100%{transform:scale(1.1) rotate(-8deg)}50%{transform:scale(1.25) rotate(8deg)}}
+.pad-icon{font-size:2.8rem;line-height:1;margin-bottom:8px;transition:transform .15s}
+.pad-title{font-family:var(--display);font-size:1.12rem;line-height:1.05;text-transform:uppercase;letter-spacing:.02em}
+.pad-desc{font-size:.76rem;font-weight:600;opacity:.8;margin-top:4px}
+.pad-key{position:absolute;top:8px;left:10px;font:700 .68rem var(--mono);background:rgba(0,0,0,.18);border-radius:6px;padding:1px 6px;display:none}
+@media(hover:hover) and (pointer:fine){.pad-key{display:block}}
+.pad[data-light="1"]{color:#fff}
+.board-actions{margin-top:16px}
+.hint{color:var(--muted);font-size:.8rem;text-align:center;margin:10px 0 0}
+
+/* --- lab --- */
+.lab-head{text-align:center;margin-bottom:14px}
+h2{font-family:var(--display);font-weight:400;font-size:clamp(1.4rem,4.5vw,2rem);margin:0;color:var(--yellow);text-transform:uppercase;letter-spacing:.03em}
+h3{font-family:var(--display);font-weight:400;font-size:1.45rem;margin:0;letter-spacing:.02em}
+.sub{color:var(--muted);margin:.35em 0 0;font-size:.9rem}
+.lab-grid{display:grid;gap:14px}
+@media(min-width:760px){.lab-grid{grid-template-columns:1.25fr 1fr}}
+.well{background:var(--card2);border:3px solid var(--ink);border-radius:18px;padding:14px}
+.group-title{font:700 .7rem var(--mono);color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin:6px 0 8px}
+.group-title:first-child{margin-top:0}
+.field{margin-bottom:12px}
+.field-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-weight:600;margin-bottom:4px;font-size:.92rem}
+.field output{font:700 .85rem var(--mono);color:var(--yellow);white-space:nowrap}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:12px;border-radius:12px;background:#2a3160;border:2px solid #000;margin:6px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--gas);border:3px solid #000;box-shadow:0 2px 0 #000}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--gas);border:3px solid #000}
+.lab-side{display:flex;flex-direction:column;gap:14px}
+.lab-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lab-actions .btn-big{grid-column:1/-1}
+
+/* --- kaos --- */
+.chaos{display:grid;gap:16px}
+@media(min-width:760px){.chaos{grid-template-columns:1fr 1fr}.dj{grid-column:1/-1}}
+.card-head{display:flex;align-items:center;gap:10px}
+.card-icon{font-size:2rem}
+.card p.sub{margin-bottom:12px}
+.timer-display{font:800 clamp(2.6rem,12vw,3.6rem) var(--mono);text-align:center;color:var(--yellow);background:#05081a;border:3px solid var(--ink);border-radius:16px;padding:.15em 0;margin:12px 0;letter-spacing:.06em}
+.timer-display.urgent{color:var(--red);animation:pulse .5s infinite alternate}
+@keyframes pulse{to{transform:scale(1.04)}}
+.stack{display:grid;gap:10px}
+.status{text-align:center;background:#05081a;border:3px solid var(--ink);border-radius:16px;padding:14px;margin:12px 0}
+.status small{display:block;font:700 .66rem var(--mono);color:var(--muted);letter-spacing:.16em;text-transform:uppercase}
+.status strong{display:block;font-size:1.15rem;margin-top:4px;color:var(--red)}
+.status.on strong{color:var(--gas)}
+.dj-grid{display:grid;gap:8px;margin:10px 0 14px}
+.dj-row{display:grid;grid-template-columns:64px repeat(8,1fr);gap:5px;align-items:center}
+.dj-label{font-size:.72rem;font-weight:700;color:var(--muted);text-align:center;line-height:1.1}
+.dj-label span{display:block;font-size:1.3rem}
+.cell{aspect-ratio:1;border:2px solid #000;border-radius:9px;background:#0d1230;box-shadow:0 3px 0 #000;transition:background .1s,transform .06s;min-width:0}
+.cell:nth-child(4n+2){background:#141a40}
+.cell[aria-pressed="true"]{background:var(--gas)}
+.cell.now{outline:3px solid var(--yellow);outline-offset:1px}
+.cell[aria-pressed="true"].now{background:var(--yellow);transform:scale(1.08)}
+.dj-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dj-controls .btn-big{grid-column:1/-1}
+
+/* --- stealth, toast, footer --- */
+#stealth{position:fixed;inset:0;z-index:60;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;cursor:pointer}
+#stealth p{color:#141414;font-size:.75rem;margin:0}
+#stealthTime{color:#1a1a1a;font:700 1.4rem var(--mono);margin-top:12px}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translate(-50%,140%);z-index:70;
+  background:var(--yellow);color:#000;border:3px solid #000;border-radius:14px;box-shadow:0 5px 0 #000;padding:.65em 1.1em;font-weight:700;
+  visibility:hidden;transition:transform .3s cubic-bezier(.2,1.4,.4,1),visibility 0s .3s;max-width:calc(100vw - 32px);text-align:center}
+#toast.show{transform:translate(-50%,0);visibility:visible;transition:transform .3s cubic-bezier(.2,1.4,.4,1)}
+footer{margin-top:28px;text-align:center;color:var(--muted);font-size:.8rem}
+footer details{margin:10px auto 0;max-width:560px;text-align:left;background:var(--card2);border:2px solid #2a3160;border-radius:14px;padding:8px 14px}
+footer summary{cursor:pointer;font-weight:700;color:var(--text)}
+footer h4{margin:12px 0 4px;color:var(--yellow);font-size:.85rem}
+footer ul{margin:0;padding-left:1.2em;line-height:1.5}
+.version{font-family:var(--mono);background:#000;color:var(--gas);padding:2px 7px;border-radius:6px}
+
+#app.shake{animation:shake .42s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shake{
+  15%{transform:translate(-7px,4px) rotate(-.6deg)}30%{transform:translate(7px,-5px) rotate(.6deg)}
+  45%{transform:translate(-5px,-3px)}60%{transform:translate(5px,3px) rotate(-.4deg)}80%{transform:translate(-2px,1px)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<div id="app">
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">💨</span>
+      <div>
+        <h1>Prutt-O-Teket<span class="sticker">Super 3000</span></h1>
+        <p class="tag">Norges mest avanserte biologiske lydlaboratorium</p>
+      </div>
+    </div>
+    <button id="muteBtn" class="btn btn-dark" aria-pressed="false" aria-label="Slå lyd av eller på">
+      <span id="muteIcon" aria-hidden="true">🔊</span><span id="muteText">Lyd på</span>
+    </button>
+  </header>
+
+  <main>
+    <section class="panel meter" aria-label="Prompe-O-Meter">
+      <div class="scope-wrap">
+        <canvas id="scope" aria-hidden="true"></canvas>
+        <div id="scopeHint" class="scope-hint">Trykk på en knapp for å slippe ut gass 🟢</div>
+        <div class="scope-label"><span class="led"></span>Bio-gass-spektrometer v4.20</div>
+      </div>
+      <dl class="stats" id="stats" aria-live="polite">
+        <div><dt>Siste utslipp</dt><dd id="stName">Ingen ennå</dd></div>
+        <div><dt>Lydstyrke</dt><dd id="stDb">– dB</dd></div>
+        <div><dt>Giftgassindeks</dt><dd><span class="bar"><i id="stStenchBar"></i></span><span id="stStench">–</span></dd></div>
+        <div><dt>Trusselnivå</dt><dd id="stThreat">Ingen fare</dd></div>
+        <div><dt>Sjanse for naboklage</dt><dd id="stComplaint">–</dd></div>
+        <div><dt>Syndebukk</dt><dd id="stBlame">–</dd></div>
+        <div><dt>Totalt antall utslipp</dt><dd id="stCount">0</dd></div>
+      </dl>
+      <div class="rooms" role="group" aria-label="Akustikk">
+        <span class="rooms-label">Akustikk:</span>
+        <div id="roomChips" class="chips"></div>
+      </div>
+    </section>
+
+    <nav class="tabs" role="tablist" aria-label="Moduser">
+      <button class="tab" role="tab" id="tab-board" aria-controls="panel-board" aria-selected="true">🎛️ Soundboard</button>
+      <button class="tab" role="tab" id="tab-lab" aria-controls="panel-lab" aria-selected="false" tabindex="-1">🧪 Prompe-lab</button>
+      <button class="tab" role="tab" id="tab-chaos" aria-controls="panel-chaos" aria-selected="false" tabindex="-1">🎮 Kaos</button>
+    </nav>
+
+    <!-- SOUNDBOARD -->
+    <section id="panel-board" role="tabpanel" aria-labelledby="tab-board">
+      <div id="board" class="board"></div>
+      <div class="board-actions">
+        <button id="surpriseBtn" class="btn btn-big btn-wide btn-yellow">🎲 Overrask meg!</button>
+      </div>
+      <p class="hint" id="keyHint" hidden>Tips: tastene 1–8 spiller av knappene, 0 overrasker.</p>
+    </section>
+
+    <!-- LAB -->
+    <section id="panel-lab" role="tabpanel" aria-labelledby="tab-lab" class="panel" hidden>
+      <div class="lab-head">
+        <h2>Biologisk gass-synthesizer</h2>
+        <p class="sub">Juster tarmtrykk, væskenivå og kjemisk sammensetning til du har skapt et mesterverk.</p>
+      </div>
+      <div class="lab-grid">
+        <div class="well" id="labFields"></div>
+        <div class="lab-side">
+          <div class="well">
+            <div class="group-title">Last inn en klassiker</div>
+            <div id="labPresets" class="chips"></div>
+          </div>
+          <div class="lab-actions">
+            <button id="labFire" class="btn btn-big btn-fire">🔥 Fyr av laboratoriet!</button>
+            <button id="labRandom" class="btn">🎲 Tilfeldig</button>
+            <button id="labShare" class="btn">🔗 Del oppskrift</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KAOS -->
+    <section id="panel-chaos" role="tabpanel" aria-labelledby="tab-chaos" class="chaos" hidden>
+      <article class="panel card">
+        <div class="card-head"><span class="card-icon" aria-hidden="true">💣</span><h3>Gass-tidsbombe</h3></div>
+        <p class="sub">Legg telefonen under puta, still inn nedtellingen og løp for livet.</p>
+        <div class="chips" id="timerPresets" role="group" aria-label="Nedtellingstid">
+          <button class="chip" data-sec="5">5 s</button>
+          <button class="chip" data-sec="10" aria-pressed="true">10 s</button>
+          <button class="chip" data-sec="30">30 s</button>
+          <button class="chip" data-sec="60">60 s</button>
+          <button class="chip" data-sec="random">🎲 Tilfeldig</button>
+        </div>
+        <div id="timerDisplay" class="timer-display" role="timer" aria-live="off">00:10</div>
+        <div class="stack">
+          <button id="timerStart" class="btn btn-big btn-red">Start nedtelling 💣</button>
+          <button id="stealthBtn" class="btn btn-ghost">🕶️ Stealth-skjerm (helt svart)</button>
+        </div>
+      </article>
+
+      <article class="panel card">
+        <div class="card-head"><span class="card-icon" aria-hidden="true">📳</span><h3>Riste-promp</h3></div>
+        <p class="sub">Rist telefonen for å pumpe ut ukontrollert gass. Ingen telefon? Bruk simulatoren.</p>
+        <div class="status" id="shakeStatusBox"><small>Gyro-status</small><strong id="shakeStatus">Avslått</strong></div>
+        <div class="stack">
+          <button id="shakeToggle" class="btn btn-big btn-yellow">Aktiver risting</button>
+          <button id="shakeSim" class="btn">Simuler risting 📳</button>
+        </div>
+      </article>
+
+      <article class="panel card dj">
+        <div class="card-head"><span class="card-icon" aria-hidden="true">🎧</span><h3>Prompe-DJ</h3></div>
+        <p class="sub">Trykk i rutenettet for å lage din egen rytmiske fisekonsert til helgens fest.</p>
+        <div id="djGrid" class="dj-grid"></div>
+        <div class="field">
+          <div class="field-top"><label for="djBpm">Tempo</label><output id="djBpmOut">120 BPM</output></div>
+          <input type="range" id="djBpm" min="60" max="200" step="1" value="120">
+        </div>
+        <div class="dj-controls">
+          <button id="djToggle" class="btn btn-big btn-gas">Start beatmaskin 🎧</button>
+          <button id="djRandom" class="btn">🎲 Remix</button>
+          <button id="djClear" class="btn">🧹 Tøm</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <p>Prutt-O-Teket Super 3000 <span class="version" id="version"></span></p>
+    <p>All lyd syntetiseres live i nettleseren. Ingen dyr ble skadet – bortsett fra nesa di.</p>
+    <details>
+      <summary>Hva er nytt?</summary>
+      <div id="changelog"></div>
+    </details>
+  </footer>
+</div>
+
+<div id="stealth" hidden role="dialog" aria-label="Stealth-skjerm">
+  <p>Stealth-modus. Trykk hvor som helst for å gå ut.</p>
+  <div id="stealthTime"></div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- ============================================================
+     KJERNE: ren logikk uten DOM. Testes med `node --test tests/*.test.mjs`.
+     ============================================================ -->
+<script id="prutt-core">
+(function (root) {
+  'use strict';
+
+  var VERSION = '2.0.0';
+  var CHANGELOG = [
+    { version: '2.0.0', date: '2026-10-27', changes: [
+      'Helt ny lydmotor: alle lyder syntetiseres live – ingen eksterne MP3-filer, virker offline',
+      'Hver knapp har sin egen karakter (tone, flutter, væske, rasp, snik og pipe-hale)',
+      'Prompe-laben styrer nå faktisk lyden – 9 parametre, tilfeldig-knapp og deling av oppskrift via lenke',
+      'Prompe-O-Meteret regner ut dB, giftgassindeks og naboklage fra selve lyden i stedet for tilfeldige tall',
+      'Akustikkvalg: ute, stue, baderom og katedral (romklang)',
+      'Prompe-DJ med 4 × 8 rutenett, presis timing, remix og lagret mønster',
+      'Tidsbombe med tilfeldig nedtelling, avbryt-knapp, nedtelling som tåler bakgrunn og holder skjermen våken',
+      'Riste-modus med tydelig status og iOS-tillatelse',
+      'Vibrasjon i takt med lyden, gassky fra knappen du trykker på, tastatursnarveier 1–8',
+      'Eget design uten Tailwind/Font Awesome/konfetti-CDN – raskere og mer robust',
+      'Husker lyd av/på, akustikk, teller og DJ-mønster',
+      'Respekterer «redusert bevegelse» og har bedre tilgjengelighet (faner, aria, fokus)'
+    ] },
+    { version: '1.0.0', date: '2026-10-27', changes: [
+      'Første versjon: soundboard, prompe-lab, tidsbombe, riste-modus og DJ'
+    ] }
+  ];
+
+  function clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+
+  var RANGES = {
+    pitch: [30, 500], pitchEnd: [20, 500], duration: [0.1, 4], wetness: [0, 1], flutter: [1, 60],
+    rasp: [0, 1], air: [0, 1], squeak: [0, 1], volume: [0, 1]
+  };
+  var DEFAULTS = { pitch: 120, pitchEnd: 54, duration: 0.8, wetness: 0.5, flutter: 15, rasp: 0.3, air: 0.1, squeak: 0, volume: 0.9 };
+  var KEYS = Object.keys(RANGES);
+
+  function normalizeParams(input) {
+    var src = input || {};
+    var out = {};
+    for (var i = 0; i < KEYS.length; i++) {
+      var k = KEYS[i], raw = src[k];
+      var n = Number(raw);
+      var v = (raw === undefined || raw === null || raw === '' || !isFinite(n)) ? DEFAULTS[k] : n;
+      out[k] = clamp(v, RANGES[k][0], RANGES[k][1]);
+    }
+    return out;
+  }
+
+  function mulberry32(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function curveLength(p, rate) { return Math.max(2, Math.round(p.duration * rate)); }
+  function smooth(x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
+
+  // Tonehøyde: eksponentiell glidning fra pitch til pitchEnd med litt «menneskelig» vingling i midten.
+  function buildPitchCurve(params, rate, rng) {
+    var p = normalizeParams(params);
+    var n = curveLength(p, rate);
+    var out = new Float32Array(n);
+    var ratio = p.pitchEnd / p.pitch;
+    var ph = rng() * Math.PI * 2, wf = 1.5 + rng() * 2.5;
+    for (var i = 0; i < n; i++) {
+      var x = i / (n - 1);
+      var glide = p.pitch * Math.pow(ratio, Math.pow(x, 0.7));
+      var wob = 1 + 0.06 * Math.sin(ph + x * wf * Math.PI * 2) * 4 * x * (1 - x);
+      out[i] = Math.max(20, glide * wob);
+    }
+    return out;
+  }
+
+  // Amplitude: angrep/slipp-kurve multiplisert med «flutter» – lukkemuskelens blafring.
+  function buildAmpEnvelope(params, rate, rng) {
+    var p = normalizeParams(params);
+    var n = curveLength(p, rate);
+    var out = new Float32Array(n);
+    var aFrac = Math.min(0.25, 0.03 / p.duration + 0.02);
+    var rFrac = 0.25;
+    var depth = 0.9 - 0.45 * p.air;
+    var TAU = Math.PI * 2;
+    var phase = 0, pulse = 0.8 + 0.2 * rng();
+    for (var i = 0; i < n; i++) {
+      var x = i / (n - 1);
+      var att = smooth(x / aFrac);
+      var rel = x > 1 - rFrac ? smooth((1 - x) / rFrac) : 1;
+      var base = att * rel * (1 - 0.3 * x);
+      var m = 0.5 + 0.5 * Math.cos(phase);
+      var mod = (1 - depth) + depth * Math.pow(m, 0.6);
+      out[i] = clamp(base * mod * pulse, 0, 1);
+      var jitter = 1 + (rng() - 0.5) * 0.5 * (0.3 + p.wetness);
+      var prev = phase;
+      phase += TAU * p.flutter * jitter / rate;
+      if (Math.floor(phase / TAU) !== Math.floor(prev / TAU)) pulse = 0.7 + 0.3 * rng();
+    }
+    out[n - 1] = 0;
+    return out;
+  }
+
+  var THREATS = [
+    '🟢 Lokalisert utslipp i det fri',
+    '🟡 Moderat luktforurensning',
+    '🟠 Giftgassalarm – luft ut rommet',
+    '🔴 NATO-varsling: biologisk trussel'
+  ];
+  var SCAPEGOATS = ['Hunden 🐕', 'Katten 🐈', 'Onkel Per 👴', 'Stolen 🪑', 'Han i dongeri 👖', 'Naboen 🏠', 'Babyen 👶', 'Mopsen 🐶', 'Kollegaen 💼', 'Spøkelset 👻'];
+
+  function computeStats(params) {
+    var p = normalizeParams(params);
+    var lowness = clamp((300 - p.pitch) / 260, 0, 1);
+    var len = Math.min(p.duration, 3) / 3;
+    var db = Math.round(clamp(55 + 45 * p.volume * (1 - 0.75 * p.air) + 20 * lowness + 8 * len + 6 * p.rasp, 0, 140));
+    var stench = Math.round(clamp(30 + 35 * p.wetness + 45 * p.air + 10 * len + 5 * lowness, 0, 99));
+    var score = clamp(((db - 50) / 90) * 0.5 + (stench / 99) * 0.5, 0, 1);
+    var threatIndex = Math.min(3, Math.floor(score * 4));
+    var complaint = Math.round(clamp((db - 50) * 1.2, 0, 99));
+    return { db: db, stench: stench, threatIndex: threatIndex, threat: THREATS[threatIndex], complaint: complaint };
+  }
+
+  var PRESETS = [
+    { id: 'snikeren', title: 'Snikeren', desc: 'Stille, men dødelig', name: 'Snikeren (stille, men dødelig)', icon: '🥷', colors: ['#fff27a', '#f5b700'],
+      params: { pitch: 380, pitchEnd: 300, duration: 1.4, wetness: 0.05, flutter: 40, rasp: 0, air: 0.9, squeak: 0, volume: 0.35 } },
+    { id: 'sjefen', title: 'Sjefens torden', desc: 'Kontorets undergang', name: 'Sjefens tordenbrak', icon: '⚡', colors: ['#ff7a5c', '#e1263a'],
+      params: { pitch: 95, pitchEnd: 45, duration: 1.6, wetness: 0.15, flutter: 18, rasp: 0.7, air: 0.05, squeak: 0, volume: 1 } },
+    { id: 'svigermor', title: 'Svigermors hevn', desc: 'Giftgass i stua', name: 'Svigermors hevn', icon: '👵', colors: ['#d18bff', '#ff5fa2'],
+      params: { pitch: 170, pitchEnd: 70, duration: 1.5, wetness: 0.35, flutter: 11, rasp: 0.4, air: 0.2, squeak: 0.3, volume: 0.85 } },
+    { id: 'taco', title: 'Etter tacofredag', desc: 'Biologisk fare', name: 'Tacofredag-katastrofen', icon: '🌮', colors: ['#9cff5c', '#22a34a'],
+      params: { pitch: 85, pitchEnd: 40, duration: 2.2, wetness: 0.8, flutter: 24, rasp: 0.5, air: 0.1, squeak: 0, volume: 0.95 } },
+    { id: 'vaate', title: 'Våte væla', desc: 'Boblete og saftig', name: 'Våte væla', icon: '💦', colors: ['#6fe3ff', '#1aa6a0'],
+      params: { pitch: 130, pitchEnd: 65, duration: 1.1, wetness: 1, flutter: 30, rasp: 0.2, air: 0.05, squeak: 0, volume: 0.85 } },
+    { id: 'maskingevaer', title: 'Maskingeværet', desc: 'Rask serieild', name: 'Maskingeværsalve', icon: '🔫', colors: ['#7cffb0', '#0f9f6e'],
+      params: { pitch: 150, pitchEnd: 90, duration: 0.22, wetness: 0.1, flutter: 35, rasp: 0.6, air: 0, squeak: 0, volume: 0.9 },
+      burst: { count: 5, gap: 0.13, pitchStep: 12 } },
+    { id: 'mus', title: 'Liten mus, stor promp', desc: 'Uventet bass', name: 'Liten mus med stor gass', icon: '🐹', colors: ['#ffc86b', '#ff9a1f'],
+      params: { pitch: 320, pitchEnd: 55, duration: 1.3, wetness: 0.2, flutter: 9, rasp: 0.3, air: 0.05, squeak: 0.6, volume: 0.9 } },
+    { id: 'orkan', title: 'Megaorkanen', desc: 'Skjelving i gulvet', name: 'Klasse 5-urorkan', icon: '🌪️', colors: ['#8d8aa8', '#2d2a45'], light: true,
+      params: { pitch: 45, pitchEnd: 25, duration: 3, wetness: 0.6, flutter: 14, rasp: 0.9, air: 0, squeak: 0, volume: 1 } }
+  ];
+
+  var ROOMS = [
+    { id: 'ute', label: 'Ute', icon: '🌲', decay: 0, mix: 0 },
+    { id: 'stue', label: 'Stue', icon: '🛋️', decay: 0.5, mix: 0.12 },
+    { id: 'baderom', label: 'Baderom', icon: '🚽', decay: 1.3, mix: 0.38 },
+    { id: 'katedral', label: 'Katedral', icon: '⛪', decay: 3.8, mix: 0.5 }
+  ];
+
+  // ---- Timer ----
+  function formatTime(sec) {
+    var s = Math.max(0, Math.ceil((Number(sec) || 0) - 1e-9));
+    var m = Math.floor(s / 60), r = s % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
+  }
+
+  // ---- DJ ----
+  var STEPS = 8;
+  var DJ_ROWS = [
+    { id: 'torden', label: 'Bass', icon: '🥁', params: { pitch: 70, pitchEnd: 40, duration: 0.35, wetness: 0.1, flutter: 16, rasp: 0.8, air: 0, squeak: 0, volume: 1 } },
+    { id: 'salve', label: 'Salve', icon: '🔫', params: { pitch: 160, pitchEnd: 100, duration: 0.12, wetness: 0, flutter: 40, rasp: 0.5, air: 0, squeak: 0, volume: 0.8 } },
+    { id: 'pip', label: 'Pip', icon: '🐭', params: { pitch: 420, pitchEnd: 300, duration: 0.1, wetness: 0, flutter: 50, rasp: 0.1, air: 0.2, squeak: 0, volume: 0.6 } },
+    { id: 'splash', label: 'Splæsj', icon: '💦', params: { pitch: 120, pitchEnd: 70, duration: 0.25, wetness: 1, flutter: 30, rasp: 0.2, air: 0, squeak: 0, volume: 0.8 } }
+  ];
+  var DEFAULT_PATTERN = [
+    [true, false, false, false, true, false, false, false],
+    [false, false, true, false, false, false, true, false],
+    [false, true, false, true, false, true, false, true],
+    [false, false, false, true, false, false, false, true]
+  ];
+  function stepDuration(bpm) { return 60 / clamp(Number(bpm) || 120, 40, 240) / 2; }
+  function isValidPattern(x) {
+    if (!Array.isArray(x) || x.length !== DJ_ROWS.length) return false;
+    for (var r = 0; r < x.length; r++) {
+      if (!Array.isArray(x[r]) || x[r].length !== STEPS) return false;
+      for (var s = 0; s < STEPS; s++) if (typeof x[r][s] !== 'boolean') return false;
+    }
+    return true;
+  }
+  function toggleStep(pattern, row, step) {
+    return pattern.map(function (r, ri) {
+      return r.map(function (v, si) { return (ri === row && si === step) ? !v : v; });
+    });
+  }
+  function randomPattern(rng, density) {
+    var d = density == null ? 0.35 : density;
+    var out = [];
+    for (var r = 0; r < DJ_ROWS.length; r++) {
+      var row = [];
+      for (var s = 0; s < STEPS; s++) row.push(rng() < d * (s % 2 === 0 ? 1.3 : 0.8));
+      out.push(row);
+    }
+    out[0][0] = true;
+    return out;
+  }
+
+  // ---- Risting ----
+  function isShake(prev, cur, threshold) {
+    if (!prev || !cur) return false;
+    var d = Math.abs((cur.x || 0) - (prev.x || 0)) + Math.abs((cur.y || 0) - (prev.y || 0)) + Math.abs((cur.z || 0) - (prev.z || 0));
+    return d > threshold;
+  }
+
+  // ---- Oppskrift (lenkedeling) ----
+  var RECIPE_SCALE = { pitch: 1, pitchEnd: 1, duration: 100, wetness: 100, flutter: 1, rasp: 100, air: 100, squeak: 100, volume: 100 };
+  function encodeRecipe(params) {
+    var p = normalizeParams(params);
+    return 'v1.' + KEYS.map(function (k) { return Math.round(p[k] * RECIPE_SCALE[k]); }).join('.');
+  }
+  function decodeRecipe(str) {
+    if (typeof str !== 'string') return null;
+    var parts = str.trim().split('.');
+    if (parts[0] !== 'v1' || parts.length !== KEYS.length + 1) return null;
+    var o = {};
+    for (var i = 0; i < KEYS.length; i++) {
+      if (!/^-?\d+$/.test(parts[i + 1])) return null;
+      o[KEYS[i]] = Number(parts[i + 1]) / RECIPE_SCALE[KEYS[i]];
+    }
+    return normalizeParams(o);
+  }
+
+  // ---- Lab ----
+  var LAB_FIELDS = [
+    { key: 'pitch', group: 'Lyd', label: 'Tarmtrykk og tonehøyde', icon: '🎈', min: 30, max: 500, step: 1, unit: ' Hz' },
+    { key: 'drop', group: 'Lyd', label: 'Tonefall', icon: '📉', min: -60, max: 90, step: 1, unit: ' %' },
+    { key: 'duration', group: 'Lyd', label: 'Utblåsingstid', icon: '⏱️', min: 0.1, max: 4, step: 0.05, unit: ' s' },
+    { key: 'volume', group: 'Lyd', label: 'Volum', icon: '📢', min: 0, max: 100, step: 1, unit: ' %' },
+    { key: 'wetness', group: 'Tekstur', label: 'Væskefaktor', icon: '💦', min: 0, max: 100, step: 1, unit: ' %' },
+    { key: 'flutter', group: 'Tekstur', label: 'Flutter', icon: '🫧', min: 1, max: 60, step: 1, unit: ' Hz' },
+    { key: 'rasp', group: 'Tekstur', label: 'Rasp', icon: '🪚', min: 0, max: 100, step: 1, unit: ' %' },
+    { key: 'air', group: 'Spesial', label: 'Snikfaktor', icon: '🥷', min: 0, max: 100, step: 1, unit: ' %' },
+    { key: 'squeak', group: 'Spesial', label: 'Pipe-hale', icon: '🐁', min: 0, max: 100, step: 1, unit: ' %' }
+  ];
+  function labField(key) { for (var i = 0; i < LAB_FIELDS.length; i++) if (LAB_FIELDS[i].key === key) return LAB_FIELDS[i]; return null; }
+
+  function paramsToLab(params) {
+    var p = normalizeParams(params);
+    var pct = function (v) { return Math.round(v * 100); };
+    return {
+      pitch: Math.round(p.pitch),
+      drop: Math.round(clamp((1 - p.pitchEnd / p.pitch) * 100, -60, 90)),
+      duration: Math.round(p.duration * 20) / 20,
+      volume: pct(p.volume), wetness: pct(p.wetness),
+      flutter: Math.round(p.flutter), rasp: pct(p.rasp), air: pct(p.air), squeak: pct(p.squeak)
+    };
+  }
+  function labToParams(lab) {
+    var l = lab || {};
+    var pitch = Number(l.pitch);
+    return normalizeParams({
+      pitch: pitch,
+      pitchEnd: Math.round(pitch * (1 - Number(l.drop) / 100)),
+      duration: l.duration,
+      volume: Number(l.volume) / 100, wetness: Number(l.wetness) / 100,
+      flutter: l.flutter, rasp: Number(l.rasp) / 100, air: Number(l.air) / 100, squeak: Number(l.squeak) / 100
+    });
+  }
+  function randomLab(rng) {
+    var lab = {};
+    for (var i = 0; i < LAB_FIELDS.length; i++) {
+      var f = LAB_FIELDS[i];
+      var steps = Math.round((f.max - f.min) / f.step);
+      lab[f.key] = Math.round((f.min + Math.floor(rng() * (steps + 1)) * f.step) * 100) / 100;
+    }
+    // Hold ting morsomme: mest bass, sjelden helt snikende, alltid hørbar.
+    lab.air = Math.round(lab.air * 0.5);
+    lab.volume = Math.max(60, lab.volume);
+    lab.drop = Math.max(0, lab.drop);
+    return lab;
+  }
+
+  // ---- Vibrasjon ----
+  function vibrationPattern(params) {
+    var p = normalizeParams(params);
+    if (p.air > 0.7) return [12];
+    var total = Math.min(p.duration * 1000, 3000);
+    var period = 1000 / p.flutter;
+    var on = Math.max(8, Math.round(period * 0.55));
+    var off = Math.max(8, Math.round(period - on));
+    var out = [], t = 0;
+    while (t + on <= total && out.length < 39) {
+      out.push(on); t += on;
+      if (t + off > total || out.length >= 39) break;
+      out.push(off); t += off;
+    }
+    if (!out.length) out.push(Math.max(8, Math.round(Math.min(total, 20))));
+    return out;
+  }
+
+  root.PruttCore = {
+    VERSION: VERSION, CHANGELOG: CHANGELOG, DEFAULTS: DEFAULTS, RANGES: RANGES,
+    clamp: clamp, normalizeParams: normalizeParams, mulberry32: mulberry32,
+    buildPitchCurve: buildPitchCurve, buildAmpEnvelope: buildAmpEnvelope,
+    THREATS: THREATS, SCAPEGOATS: SCAPEGOATS, computeStats: computeStats,
+    PRESETS: PRESETS, ROOMS: ROOMS, formatTime: formatTime,
+    STEPS: STEPS, DJ_ROWS: DJ_ROWS, DEFAULT_PATTERN: DEFAULT_PATTERN, stepDuration: stepDuration,
+    isValidPattern: isValidPattern, toggleStep: toggleStep, randomPattern: randomPattern,
+    isShake: isShake, encodeRecipe: encodeRecipe, decodeRecipe: decodeRecipe,
+    LAB_FIELDS: LAB_FIELDS, labField: labField, paramsToLab: paramsToLab, labToParams: labToParams, randomLab: randomLab,
+    vibrationPattern: vibrationPattern
+  };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+
+<!-- ============================================================
+     APP: lyd, grensesnitt og effekter
+     ============================================================ -->
+<script>
+(function () {
+  'use strict';
+  var C = window.PruttCore;
+  var $ = function (s) { return document.querySelector(s); };
+  var $$ = function (s) { return Array.prototype.slice.call(document.querySelectorAll(s)); };
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem('prutt.' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem('prutt.' + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  var reduceMotion = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var pick = function (arr) { return arr[Math.floor(Math.random() * arr.length)]; };
+
+  /* ================= LYDMOTOR ================= */
+  var ac = null, master, comp, analyser, dryGain, wetGain, convolver, whiteBuf, brownBuf;
+  var muted = !!store.get('muted', false);
+  var roomId = store.get('room', 'stue');
+  if (!C.ROOMS.some(function (r) { return r.id === roomId; })) roomId = 'stue';
+  var impulseCache = {};
+
+  function ensureAudio() {
+    if (!ac) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      ac = new AC();
+      master = ac.createGain(); master.gain.value = muted ? 0 : 0.9;
+      comp = ac.createDynamicsCompressor();
+      comp.threshold.value = -14; comp.knee.value = 10; comp.ratio.value = 6; comp.attack.value = 0.003; comp.release.value = 0.2;
+      dryGain = ac.createGain(); wetGain = ac.createGain(); convolver = ac.createConvolver();
+      master.connect(dryGain); master.connect(convolver); convolver.connect(wetGain);
+      dryGain.connect(comp); wetGain.connect(comp);
+      analyser = ac.createAnalyser(); analyser.fftSize = 1024;
+      comp.connect(analyser); analyser.connect(ac.destination);
+      whiteBuf = makeNoise(2, false); brownBuf = makeNoise(2, true);
+      applyRoom();
+    }
+    if (ac.state === 'suspended') ac.resume();
+    return ac;
+  }
+
+  function makeNoise(seconds, brown) {
+    var len = Math.floor(ac.sampleRate * seconds);
+    var buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0), last = 0;
+    for (var i = 0; i < len; i++) {
+      var w = Math.random() * 2 - 1;
+      if (brown) { last = (last + 0.02 * w) / 1.02; d[i] = last * 3.5; } else d[i] = w;
+    }
+    return buf;
+  }
+  function makeImpulse(seconds) {
+    var len = Math.max(1, Math.floor(ac.sampleRate * seconds));
+    var buf = ac.createBuffer(2, len, ac.sampleRate);
+    for (var ch = 0; ch < 2; ch++) {
+      var d = buf.getChannelData(ch);
+      for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    }
+    return buf;
+  }
+  function applyRoom() {
+    if (!ac) return;
+    var room = C.ROOMS.filter(function (r) { return r.id === roomId; })[0];
+    if (room.decay > 0) {
+      if (!impulseCache[room.id]) impulseCache[room.id] = makeImpulse(room.decay);
+      convolver.buffer = impulseCache[room.id];
+    }
+    var t = ac.currentTime;
+    dryGain.gain.setTargetAtTime(1 - room.mix * 0.5, t, 0.05);
+    wetGain.gain.setTargetAtTime(room.decay > 0 ? room.mix : 0, t, 0.05);
+  }
+
+  var distCache = {};
+  function distCurve(amount) {
+    var key = Math.round(amount * 10);
+    if (distCache[key]) return distCache[key];
+    var k = key * 8, n = 1024, c = new Float32Array(n);
+    for (var i = 0; i < n; i++) { var x = i * 2 / n - 1; c[i] = k === 0 ? x : (1 + k) * x / (1 + k * Math.abs(x)); }
+    return (distCache[key] = c);
+  }
+
+  // Bygger én promp av oscillatorer, støy, filtre og konvolutter.
+  function synth(p, t0) {
+    var rate = 200, rng = C.mulberry32((Math.random() * 4294967296) >>> 0), dur = p.duration;
+    var pitch = C.buildPitchCurve(p, rate, rng);
+    var amp = C.buildAmpEnvelope(p, rate, rng);
+    var sub = pitch.map(function (f) { return Math.max(20, f * 0.5); });
+    var cut = pitch.map(function (f) { return Math.min(8000, 250 + f * (5 + p.rasp * 6)); });
+    var end = t0 + dur + 0.05;
+    var nodes = [];
+
+    var voice = ac.createGain(); voice.gain.value = p.volume; voice.connect(master);
+    var vca = ac.createGain(); vca.gain.value = 0; vca.gain.setValueCurveAtTime(amp, t0, dur); vca.connect(voice);
+    nodes.push(voice, vca);
+
+    // Tone: sagtann + firkant-sub gjennom forvrengning og resonant lavpass.
+    var toneLvl = 1 - 0.85 * p.air;
+    if (toneLvl > 0.02) {
+      var o1 = ac.createOscillator(); o1.type = 'sawtooth'; o1.frequency.setValueCurveAtTime(pitch, t0, dur);
+      var o2 = ac.createOscillator(); o2.type = 'square'; o2.frequency.setValueCurveAtTime(sub, t0, dur);
+      var g2 = ac.createGain(); g2.gain.value = 0.45;
+      var sh = ac.createWaveShaper(); sh.curve = distCurve(p.rasp); sh.oversample = '2x';
+      var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 3 + p.rasp * 8; lp.frequency.setValueCurveAtTime(cut, t0, dur);
+      var tg = ac.createGain(); tg.gain.value = toneLvl * 0.7;
+      o1.connect(sh); o2.connect(g2); g2.connect(sh); sh.connect(lp); lp.connect(tg); tg.connect(vca);
+      o1.start(t0); o2.start(t0); o1.stop(end); o2.stop(end);
+      nodes.push(o1, o2, g2, sh, lp, tg);
+    }
+    // Luft: susende hvit støy (snikeren).
+    if (p.air > 0.02) {
+      var na = ac.createBufferSource(); na.buffer = whiteBuf; na.loop = true;
+      var bpA = ac.createBiquadFilter(); bpA.type = 'bandpass'; bpA.frequency.value = 900 + p.pitch * 2; bpA.Q.value = 0.8;
+      var gA = ac.createGain(); gA.gain.value = p.air * 0.9;
+      na.connect(bpA); bpA.connect(gA); gA.connect(vca);
+      na.start(t0, Math.random() * 1.5); na.stop(end);
+      nodes.push(na, bpA, gA);
+    }
+    // Væske: brun støy rundt 300–800 Hz.
+    var nw = ac.createBufferSource(); nw.buffer = brownBuf; nw.loop = true;
+    var bpW = ac.createBiquadFilter(); bpW.type = 'bandpass'; bpW.frequency.value = 300 + p.wetness * 500; bpW.Q.value = 1.3;
+    var gW = ac.createGain(); gW.gain.value = 0.12 + 0.75 * p.wetness;
+    nw.connect(bpW); bpW.connect(gW); gW.connect(vca);
+    nw.start(t0, Math.random() * 1.5); nw.stop(end);
+    nodes.push(nw, bpW, gW);
+
+    // Bobler: korte, synkende «plopp».
+    var bubbles = Math.round(p.wetness * dur * 10);
+    for (var i = 0; i < bubbles; i++) {
+      var bt = t0 + rng() * dur * 0.9, bl = 0.025 + rng() * 0.04, bf = 180 + rng() * 420;
+      var bo = ac.createOscillator(); bo.type = 'sine';
+      bo.frequency.setValueAtTime(bf, bt); bo.frequency.exponentialRampToValueAtTime(bf * 0.45, bt + bl);
+      var bg = ac.createGain(); bg.gain.setValueAtTime(0.0001, bt);
+      bg.gain.exponentialRampToValueAtTime(0.25 * p.wetness, bt + 0.004); bg.gain.exponentialRampToValueAtTime(0.0001, bt + bl);
+      bo.connect(bg); bg.connect(voice); bo.start(bt); bo.stop(bt + bl + 0.02);
+      nodes.push(bo, bg);
+    }
+    // Pipe-hale: lite «fiiip» helt på slutten.
+    if (p.squeak > 0.05) {
+      var st = t0 + dur * 0.82, sl = 0.16;
+      var so = ac.createOscillator(); so.type = 'triangle';
+      so.frequency.setValueAtTime(700, st); so.frequency.exponentialRampToValueAtTime(1400, st + sl);
+      var sg = ac.createGain(); sg.gain.setValueAtTime(0.0001, st);
+      sg.gain.exponentialRampToValueAtTime(0.2 * p.squeak, st + 0.02); sg.gain.exponentialRampToValueAtTime(0.0001, st + sl);
+      so.connect(sg); sg.connect(voice); so.start(st); so.stop(st + sl + 0.02);
+      nodes.push(so, sg);
+    }
+    setTimeout(function () { nodes.forEach(function (n) { try { n.disconnect(); } catch (e) {} }); },
+      (t0 - ac.currentTime + dur + 0.6) * 1000);
+  }
+
+  // Offentlig avspilling. opts: when (absolutt AudioContext-tid), delay (sek), light, origin (element), name.
+  function playFart(params, opts) {
+    opts = opts || {};
+    var p = C.normalizeParams(params);
+    var ctx = ensureAudio();
+    var delay = opts.delay || 0;
+    if (ctx) {
+      var t = opts.when || (ctx.currentTime + 0.02 + delay);
+      if (!muted) synth(p, t);
+      delay = Math.max(0, t - ctx.currentTime);
+    }
+    setTimeout(function () { effects(p, opts); markActive(p.duration); }, delay * 1000);
+  }
+
+  function playPreset(pr, origin) {
+    if (origin) {
+      origin.classList.add('playing');
+      var total = pr.burst ? pr.burst.count * pr.burst.gap + pr.params.duration : pr.params.duration;
+      setTimeout(function () { origin.classList.remove('playing'); }, total * 1000 + 100);
+    }
+    if (pr.burst) {
+      for (var i = 0; i < pr.burst.count; i++) {
+        var p = Object.assign({}, pr.params, { pitch: pr.params.pitch - i * pr.burst.pitchStep });
+        playFart(p, { delay: i * pr.burst.gap, origin: origin, name: pr.name, light: i > 0 });
+      }
+    } else playFart(pr.params, { origin: origin, name: pr.name });
+  }
+  function randomPreset() { return pick(C.PRESETS); }
+
+  /* ================= EFFEKTER ================= */
+  var count = Number(store.get('count', 0)) || 0;
+  function setText(sel, txt) { var el = $(sel); if (el) el.textContent = txt; }
+
+  function effects(p, opts) {
+    var s = C.computeStats(p);
+    setText('#stName', opts.name || 'Mystisk utslipp');
+    setText('#stDb', s.db + ' dB');
+    $('#stStenchBar').style.width = s.stench + '%';
+    setText('#stStench', s.stench + ' %');
+    var th = $('#stThreat'); th.textContent = s.threat; th.dataset.level = s.threatIndex;
+    setText('#stComplaint', s.complaint + ' %');
+    setText('#stBlame', pick(C.SCAPEGOATS));
+    count++; store.set('count', count);
+    setText('#stCount', count.toLocaleString('nb-NO'));
+
+    if (!opts.light) {
+      var stats = $('#stats'); stats.classList.remove('pop'); void stats.offsetWidth; stats.classList.add('pop');
+      if (!reduceMotion && s.db >= 100) {
+        var app = $('#app'); app.classList.remove('shake'); void app.offsetWidth; app.classList.add('shake');
+      }
+      if (navigator.vibrate) { try { navigator.vibrate(C.vibrationPattern(p)); } catch (e) {} }
+    }
+    var n = opts.light ? 2 : (reduceMotion ? 4 : 8 + Math.round(s.db / 12));
+    if (opts.origin || !opts.light) burst(opts.origin, n, p, s);
+  }
+
+  // Gasskyer som stiger fra knappen du trykket på.
+  var fx = $('#fx'), fctx = fx.getContext('2d'), parts = [], fxRaf = 0;
+  function sizeFx() {
+    var d = window.devicePixelRatio || 1;
+    fx.width = innerWidth * d; fx.height = innerHeight * d;
+    fctx.setTransform(d, 0, 0, d, 0, 0);
+  }
+  function burst(el, n, p, s) {
+    var x = innerWidth / 2, y = innerHeight * 0.6;
+    if (el && el.getBoundingClientRect) {
+      var r = el.getBoundingClientRect();
+      if (r.width) { x = r.left + r.width / 2; y = r.top + r.height / 2; }
+    }
+    var emo = ['💨', '💨', '☁️', '🤢', '☣️'];
+    if (p.wetness > 0.6) emo.push('💦', '💩');
+    if (p.air > 0.6) emo = ['💨', '😶‍🌫️', '🤫', '☠️'];
+    if (s.db > 120) emo.push('💥', '🌋');
+    for (var i = 0; i < n; i++) {
+      parts.push({ x: x + (Math.random() - 0.5) * 30, y: y, vx: (Math.random() - 0.5) * 4, vy: -(1.5 + Math.random() * 3.5),
+        life: 1, size: 22 + Math.random() * 24, rot: (Math.random() - 0.5) * 0.6, vr: (Math.random() - 0.5) * 0.06, e: pick(emo), ph: Math.random() * 6 });
+    }
+    if (!fxRaf) fxRaf = requestAnimationFrame(drawFx);
+  }
+  function drawFx() {
+    fctx.clearRect(0, 0, innerWidth, innerHeight);
+    fctx.textAlign = 'center'; fctx.textBaseline = 'middle';
+    parts = parts.filter(function (q) {
+      q.ph += 0.08; q.x += q.vx + Math.sin(q.ph) * 0.6; q.y += q.vy; q.vy *= 0.985; q.vx *= 0.98;
+      q.rot += q.vr; q.life -= 0.013;
+      if (q.life <= 0) return false;
+      fctx.save(); fctx.globalAlpha = Math.min(1, q.life * 1.4); fctx.translate(q.x, q.y); fctx.rotate(q.rot);
+      fctx.font = Math.round(q.size * (1.4 - q.life * 0.4)) + 'px serif'; fctx.fillText(q.e, 0, 0); fctx.restore();
+      return true;
+    });
+    fxRaf = parts.length ? requestAnimationFrame(drawFx) : 0;
+    if (!fxRaf) fctx.clearRect(0, 0, innerWidth, innerHeight);
+  }
+
+  // Oscilloskop: tegner bølgeformen bare når noe spilles.
+  var scope = $('#scope'), sctx = scope.getContext('2d'), activeUntil = 0, scopeRaf = 0, scopeData = null;
+  function sizeScope() {
+    var d = window.devicePixelRatio || 1, r = scope.getBoundingClientRect();
+    scope.width = Math.max(1, r.width * d); scope.height = Math.max(1, r.height * d);
+    sctx.setTransform(d, 0, 0, d, 0, 0);
+    drawFlat();
+  }
+  function drawFlat() {
+    var w = scope.clientWidth, h = scope.clientHeight;
+    sctx.clearRect(0, 0, w, h);
+    sctx.strokeStyle = 'rgba(124,255,79,.35)'; sctx.lineWidth = 2;
+    sctx.beginPath(); sctx.moveTo(0, h / 2); sctx.lineTo(w, h / 2); sctx.stroke();
+  }
+  function markActive(d) {
+    activeUntil = Math.max(activeUntil, performance.now() + d * 1000 + 1200);
+    $('#scopeHint').classList.add('gone');
+    if (!scopeRaf && analyser) scopeRaf = requestAnimationFrame(drawScope);
+  }
+  function drawScope() {
+    var w = scope.clientWidth, h = scope.clientHeight;
+    if (!scopeData) scopeData = new Uint8Array(analyser.fftSize);
+    analyser.getByteTimeDomainData(scopeData);
+    sctx.clearRect(0, 0, w, h);
+    sctx.lineWidth = 3; sctx.strokeStyle = '#7cff4f'; sctx.shadowColor = '#7cff4f'; sctx.shadowBlur = 12;
+    sctx.beginPath();
+    var step = w / (scopeData.length - 1);
+    for (var i = 0; i < scopeData.length; i++) {
+      var y = h / 2 + ((scopeData[i] - 128) / 128) * (h * 0.46);
+      if (i === 0) sctx.moveTo(0, y); else sctx.lineTo(i * step, y);
+    }
+    sctx.stroke(); sctx.shadowBlur = 0;
+    if (performance.now() < activeUntil) scopeRaf = requestAnimationFrame(drawScope);
+    else { scopeRaf = 0; drawFlat(); }
+  }
+
+  var toastTimer = 0;
+  function toast(msg) {
+    var t = $('#toast'); t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2600);
+  }
+
+  /* ================= LYD AV/PÅ & AKUSTIKK ================= */
+  function renderMute() {
+    var b = $('#muteBtn');
+    b.setAttribute('aria-pressed', String(muted));
+    setText('#muteIcon', muted ? '🔇' : '🔊');
+    setText('#muteText', muted ? 'Lyd av' : 'Lyd på');
+  }
+  $('#muteBtn').addEventListener('click', function () {
+    muted = !muted; store.set('muted', muted); renderMute();
+    if (ac) master.gain.setTargetAtTime(muted ? 0 : 0.9, ac.currentTime, 0.02);
+    toast(muted ? '🔇 Lyd av – gassen siver ut i stillhet' : '🔊 Lyd på');
+  });
+
+  function renderRooms() {
+    $('#roomChips').innerHTML = C.ROOMS.map(function (r) {
+      return '<button class="chip" data-room="' + r.id + '" aria-pressed="' + (r.id === roomId) + '">' + r.icon + ' ' + r.label + '</button>';
+    }).join('');
+  }
+  $('#roomChips').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-room]'); if (!b) return;
+    roomId = b.dataset.room; store.set('room', roomId); renderRooms();
+    ensureAudio(); applyRoom();
+    playFart({ pitch: 140, pitchEnd: 70, duration: 0.5, wetness: 0.3, flutter: 16, rasp: 0.4, air: 0, volume: 0.8 }, { origin: b, light: true, name: 'Akustikktest' });
+  });
+
+  /* ================= FANER ================= */
+  var TABS = ['board', 'lab', 'chaos'];
+  function switchTab(id, focus) {
+    TABS.forEach(function (t) {
+      var on = t === id, tab = $('#tab-' + t);
+      tab.setAttribute('aria-selected', String(on)); tab.tabIndex = on ? 0 : -1;
+      $('#panel-' + t).hidden = !on;
+      if (on && focus) tab.focus();
+    });
+    store.set('tab', id);
+  }
+  TABS.forEach(function (t, i) {
+    var tab = $('#tab-' + t);
+    tab.addEventListener('click', function () { switchTab(t); });
+    tab.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') switchTab(TABS[(i + 1) % TABS.length], true);
+      if (e.key === 'ArrowLeft') switchTab(TABS[(i + TABS.length - 1) % TABS.length], true);
+    });
+  });
+
+  /* ================= SOUNDBOARD ================= */
+  function renderBoard() {
+    $('#board').innerHTML = C.PRESETS.map(function (pr, i) {
+      return '<button class="pad" data-id="' + pr.id + '"' + (pr.light ? ' data-light="1"' : '') +
+        ' style="--c1:' + pr.colors[0] + ';--c2:' + pr.colors[1] + '">' +
+        '<span class="pad-key" aria-hidden="true">' + (i + 1) + '</span>' +
+        '<span class="pad-icon" aria-hidden="true">' + pr.icon + '</span>' +
+        '<span class="pad-title">' + pr.title + '</span>' +
+        '<span class="pad-desc">' + pr.desc + '</span></button>';
+    }).join('');
+  }
+  function presetById(id) { return C.PRESETS.filter(function (p) { return p.id === id; })[0]; }
+  $('#board').addEventListener('click', function (e) {
+    var b = e.target.closest('.pad'); if (b) playPreset(presetById(b.dataset.id), b);
+  });
+  $('#surpriseBtn').addEventListener('click', function (e) { playPreset(randomPreset(), e.currentTarget); });
+  document.addEventListener('keydown', function (e) {
+    if (e.target.closest && e.target.closest('input,textarea') || e.metaKey || e.ctrlKey || e.altKey) return;
+    var n = parseInt(e.key, 10);
+    if (n >= 1 && n <= C.PRESETS.length) {
+      var pad = $$('.pad')[n - 1];
+      pad.classList.add('pressed'); setTimeout(function () { pad.classList.remove('pressed'); }, 120);
+      playPreset(C.PRESETS[n - 1], $('#panel-board').hidden ? null : pad);
+    } else if (e.key === '0') playPreset(randomPreset(), null);
+  });
+  if (window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches) $('#keyHint').hidden = false;
+
+  /* ================= LAB ================= */
+  var lab = C.paramsToLab(C.DEFAULTS), labShots = 0;
+  function fmt(f, v) { return (f.step < 1 ? Number(v).toFixed(2) : String(Math.round(v))) + f.unit; }
+  function renderLab() {
+    var html = '', group = '';
+    C.LAB_FIELDS.forEach(function (f) {
+      if (f.group !== group) { group = f.group; html += '<div class="group-title">' + group + '</div>'; }
+      html += '<div class="field"><div class="field-top"><label for="lab-' + f.key + '">' + f.icon + ' ' + f.label + '</label>' +
+        '<output id="out-' + f.key + '" for="lab-' + f.key + '"></output></div>' +
+        '<input type="range" id="lab-' + f.key + '" data-key="' + f.key + '" min="' + f.min + '" max="' + f.max + '" step="' + f.step + '"></div>';
+    });
+    $('#labFields').innerHTML = html;
+    $('#labPresets').innerHTML = C.PRESETS.map(function (pr) {
+      return '<button class="chip" data-id="' + pr.id + '">' + pr.icon + ' ' + pr.title + '</button>';
+    }).join('');
+    syncLab();
+  }
+  function syncLab() {
+    C.LAB_FIELDS.forEach(function (f) {
+      $('#lab-' + f.key).value = lab[f.key];
+      setText('#out-' + f.key, fmt(f, lab[f.key]));
+    });
+  }
+  $('#labFields').addEventListener('input', function (e) {
+    var k = e.target.dataset.key; if (!k) return;
+    lab[k] = Number(e.target.value);
+    setText('#out-' + k, fmt(C.labField(k), lab[k]));
+    $$('#labPresets .chip').forEach(function (c) { c.removeAttribute('aria-pressed'); });
+  });
+  $('#labPresets').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-id]'); if (!b) return;
+    var pr = presetById(b.dataset.id);
+    lab = C.paramsToLab(pr.params); syncLab();
+    $$('#labPresets .chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c === b)); });
+    playFart(pr.params, { origin: b, name: pr.name + ' (lab)' });
+  });
+  $('#labFire').addEventListener('click', function (e) {
+    labShots++;
+    playFart(C.labToParams(lab), { origin: e.currentTarget, name: 'Laboratorieeksperiment #' + labShots });
+  });
+  $('#labRandom').addEventListener('click', function (e) {
+    lab = C.randomLab(C.mulberry32((Math.random() * 4294967296) >>> 0)); syncLab();
+    $$('#labPresets .chip').forEach(function (c) { c.removeAttribute('aria-pressed'); });
+    playFart(C.labToParams(lab), { origin: e.currentTarget, name: 'Tilfeldig mutasjon' });
+  });
+  $('#labShare').addEventListener('click', function () {
+    var url = location.href.split('#')[0] + '#r=' + C.encodeRecipe(C.labToParams(lab));
+    if (navigator.share) {
+      navigator.share({ title: 'Prutt-O-Teket-oppskrift', text: 'Hør på denne mesterpromp-oppskriften 💨', url: url }).catch(function () {});
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () { toast('🔗 Lenke kopiert!'); }, function () { prompt('Kopier lenken:', url); });
+    } else prompt('Kopier lenken:', url);
+  });
+  function loadRecipeFromHash() {
+    var m = location.hash.match(/^#r=(.+)$/); if (!m) return;
+    var p = C.decodeRecipe(decodeURIComponent(m[1]));
+    if (!p) { toast('Oppskriften var ugyldig 🤔'); return; }
+    lab = C.paramsToLab(p); syncLab(); switchTab('lab');
+    toast('🧪 Oppskrift lastet – trykk «Fyr av»!');
+  }
+
+  /* ================= TIDSBOMBE ================= */
+  var timerSec = 10, timerRandom = false, endAt = 0, timerIv = 0, wakeLock = null;
+  function renderTimer(rem) {
+    var running = !!timerIv;
+    var txt = timerRandom && running ? '??:??' : C.formatTime(running ? rem : timerSec);
+    var disp = $('#timerDisplay'); disp.textContent = txt;
+    disp.classList.toggle('urgent', running && !timerRandom && rem <= 3);
+    setText('#stealthTime', running ? 'Detonasjon om ' + txt : '');
+    var b = $('#timerStart');
+    b.textContent = running ? 'Avbryt nedtelling ✋' : 'Start nedtelling 💣';
+    b.className = 'btn btn-big ' + (running ? 'btn-ghost' : 'btn-red');
+  }
+  $('#timerPresets').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-sec]'); if (!b || timerIv) return;
+    timerRandom = b.dataset.sec === 'random';
+    if (!timerRandom) timerSec = Number(b.dataset.sec);
+    $$('#timerPresets .chip').forEach(function (c) { c.setAttribute('aria-pressed', String(c === b)); });
+    renderTimer();
+  });
+  function stopTimer() {
+    clearInterval(timerIv); timerIv = 0;
+    if (wakeLock) { wakeLock.release().catch(function () {}); wakeLock = null; }
+    renderTimer();
+  }
+  function tick() {
+    var rem = (endAt - Date.now()) / 1000;
+    if (rem <= 0) {
+      stopTimer(); hideStealth();
+      var big = C.PRESETS.filter(function (p) { return C.computeStats(p.params).db >= 100; });
+      playPreset(pick(big), $('#timerDisplay'));
+      return;
+    }
+    renderTimer(rem);
+  }
+  $('#timerStart').addEventListener('click', function () {
+    if (timerIv) { stopTimer(); toast('Bomben er desarmert 😮‍💨'); return; }
+    ensureAudio();
+    var s = timerRandom ? 5 + Math.floor(Math.random() * 56) : timerSec;
+    endAt = Date.now() + s * 1000;
+    timerIv = setInterval(tick, 200); tick();
+    if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function (l) { wakeLock = l; }).catch(function () {});
+  });
+  function hideStealth() { $('#stealth').hidden = true; }
+  $('#stealthBtn').addEventListener('click', function () { ensureAudio(); $('#stealth').hidden = false; renderTimer((endAt - Date.now()) / 1000); });
+  $('#stealth').addEventListener('click', hideStealth);
+
+  /* ================= RISTING ================= */
+  var shakeOn = false, lastAcc = null, lastShake = 0;
+  function renderShake(msg) {
+    $('#shakeStatusBox').classList.toggle('on', shakeOn);
+    setText('#shakeStatus', msg || (shakeOn ? 'AKTIV – rist telefonen!' : 'Avslått'));
+    setText('#shakeToggle', shakeOn ? 'Slå av risting' : 'Aktiver risting');
+  }
+  function onMotion(e) {
+    var a = e.accelerationIncludingGravity; if (!a || a.x === null) return;
+    var cur = { x: a.x, y: a.y, z: a.z };
+    if (C.isShake(lastAcc, cur, 14)) shakeFart();
+    lastAcc = cur;
+  }
+  function shakeFart() {
+    var now = Date.now(); if (now - lastShake < 700) return;
+    lastShake = now; playPreset(randomPreset(), $('#shakeStatusBox'));
+  }
+  function setShake(on) {
+    shakeOn = on; lastAcc = null;
+    if (on) window.addEventListener('devicemotion', onMotion); else window.removeEventListener('devicemotion', onMotion);
+    renderShake();
+  }
+  $('#shakeToggle').addEventListener('click', function () {
+    ensureAudio();
+    if (shakeOn) { setShake(false); return; }
+    if (typeof DeviceMotionEvent === 'undefined') { renderShake('Ikke støttet – bruk simulatoren'); return; }
+    if (!window.isSecureContext) { renderShake('Krever https – bruk simulatoren'); return; }
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      DeviceMotionEvent.requestPermission().then(function (st) {
+        if (st === 'granted') setShake(true); else renderShake('Tilgang avvist');
+      }).catch(function () { renderShake('Tilgang avvist'); });
+    } else setShake(true);
+  });
+  $('#shakeSim').addEventListener('click', function () { ensureAudio(); lastShake = 0; shakeFart(); });
+
+  /* ================= PROMPE-DJ ================= */
+  var pattern = store.get('pattern', null);
+  if (!C.isValidPattern(pattern)) pattern = C.DEFAULT_PATTERN.map(function (r) { return r.slice(); });
+  var bpm = C.clamp(Number(store.get('bpm', 120)) || 120, 60, 200);
+  var djOn = false, djTimer = 0, nextTime = 0, djStep = 0;
+
+  function renderDj() {
+    $('#djGrid').innerHTML = C.DJ_ROWS.map(function (row, r) {
+      var cells = '';
+      for (var s = 0; s < C.STEPS; s++) {
+        cells += '<button class="cell" data-r="' + r + '" data-s="' + s + '" aria-pressed="' + pattern[r][s] + '" aria-label="' + row.label + ' steg ' + (s + 1) + '"></button>';
+      }
+      return '<div class="dj-row"><div class="dj-label"><span aria-hidden="true">' + row.icon + '</span>' + row.label + '</div>' + cells + '</div>';
+    }).join('');
+    $('#djBpm').value = bpm; setText('#djBpmOut', bpm + ' BPM');
+  }
+  $('#djGrid').addEventListener('click', function (e) {
+    var c = e.target.closest('.cell'); if (!c) return;
+    var r = +c.dataset.r, s = +c.dataset.s;
+    pattern = C.toggleStep(pattern, r, s); store.set('pattern', pattern);
+    c.setAttribute('aria-pressed', String(pattern[r][s]));
+    if (pattern[r][s] && !djOn) playFart(C.DJ_ROWS[r].params, { origin: c, light: true, name: 'DJ: ' + C.DJ_ROWS[r].label });
+  });
+  $('#djBpm').addEventListener('input', function (e) { bpm = +e.target.value; store.set('bpm', bpm); setText('#djBpmOut', bpm + ' BPM'); });
+  function highlightStep(s) {
+    $$('.cell').forEach(function (c) { c.classList.toggle('now', +c.dataset.s === s); });
+  }
+  function schedule() {
+    var stepLen = C.stepDuration(bpm);
+    while (nextTime < ac.currentTime + 0.12) {
+      var s = djStep, t = nextTime;
+      C.DJ_ROWS.forEach(function (row, r) {
+        if (!pattern[r][s]) return;
+        var p = Object.assign({}, row.params, { duration: Math.min(row.params.duration, stepLen * 1.8) });
+        var cell = $('.cell[data-r="' + r + '"][data-s="' + s + '"]');
+        playFart(p, { when: t, light: true, origin: cell, name: 'DJ: ' + row.label });
+      });
+      setTimeout(function () { if (djOn) highlightStep(s); }, Math.max(0, (t - ac.currentTime) * 1000));
+      nextTime += stepLen; djStep = (djStep + 1) % C.STEPS;
+    }
+  }
+  function setDj(on) {
+    if (on && !ensureAudio()) { toast('Nettleseren din støtter ikke lyd 😢'); return; }
+    djOn = on;
+    clearInterval(djTimer);
+    if (on) { djStep = 0; nextTime = ac.currentTime + 0.06; schedule(); djTimer = setInterval(schedule, 25); }
+    else highlightStep(-1);
+    var b = $('#djToggle');
+    b.textContent = on ? 'Stopp beatmaskin 🛑' : 'Start beatmaskin 🎧';
+    b.className = 'btn btn-big ' + (on ? 'btn-red' : 'btn-gas');
+  }
+  $('#djToggle').addEventListener('click', function () { setDj(!djOn); });
+  $('#djRandom').addEventListener('click', function () {
+    pattern = C.randomPattern(C.mulberry32((Math.random() * 4294967296) >>> 0), 0.35);
+    store.set('pattern', pattern); renderDj(); toast('🎲 Ny remix!');
+  });
+  $('#djClear').addEventListener('click', function () {
+    pattern = C.DJ_ROWS.map(function () { return new Array(C.STEPS).fill(false); });
+    store.set('pattern', pattern); renderDj();
+  });
+  document.addEventListener('visibilitychange', function () { if (document.hidden && djOn) setDj(false); });
+
+  /* ================= FOOTER & OPPSTART ================= */
+  function renderFooter() {
+    setText('#version', 'v' + C.VERSION);
+    $('#changelog').innerHTML = C.CHANGELOG.map(function (v) {
+      return '<h4>v' + v.version + ' – ' + v.date + '</h4><ul>' + v.changes.map(function (c) { return '<li>' + c + '</li>'; }).join('') + '</ul>';
+    }).join('');
+  }
+
+  renderMute(); renderRooms(); renderBoard(); renderLab(); renderTimer(); renderShake(); renderDj(); renderFooter();
+  setText('#stCount', count.toLocaleString('nb-NO'));
+  var savedTab = store.get('tab', 'board'); switchTab(TABS.indexOf(savedTab) >= 0 ? savedTab : 'board');
+  sizeFx(); sizeScope();
+  window.addEventListener('resize', function () { sizeFx(); sizeScope(); });
+  window.addEventListener('hashchange', loadRecipeFromHash);
+  loadRecipeFromHash();
+})();
+</script>
+</body>
+</html>
