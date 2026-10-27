@@ -13,7 +13,8 @@
 - Eget design uten Tailwind-, Font Awesome- og konfetti-CDN. Respekterer «redusert bevegelse».
 - Husker lyd av/på, akustikk, valgt fane, teller og DJ-mønster.
 - Feilrettinger: Lab-sliderne for væske og flutter gjorde ingenting, alle knapper spilte samme tilfeldige MP3, Maskingeværet kuttet seg selv, timeren kunne startes flere ganger og drev i bakgrunnen, ugyldig `border-3`-klasse.
-- Tester: `node --test tests/*.test.mjs` (18 tester for kjernelogikken).
+- Tester: `npm test` (19 tester for kjernelogikken og versjonen).
+- `package.json` med versjon, så samlesiden kan vise den.
 
 ## v1.0.0 – 2026-10-27
 - Første versjon: soundboard, prompe-lab, tidsbombe, riste-modus og DJ.

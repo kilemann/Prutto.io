@@ -13,7 +13,7 @@ All lyd syntetiseres live i nettleseren med Web Audio, så appen virker uten net
 Kjernelogikken ligger i `<script id="prutt-core">` og testes med Node:
 
 ```
-node --test tests/*.test.mjs
+npm test
 ```
 
 Se [CHANGELOG.md](CHANGELOG.md) for versjonshistorikk.

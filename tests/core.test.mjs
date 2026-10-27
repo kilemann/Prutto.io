@@ -195,3 +195,8 @@ test('akustikkrom er gyldige', () => {
   for (const r of C.ROOMS) assert.ok(r.mix >= 0 && r.mix <= 1 && r.decay >= 0, r.id);
   assert.ok(C.SCAPEGOATS.length >= 5);
 });
+
+test('package.json har samme versjon som appen (samlesiden leser den)', () => {
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  assert.equal(pkg.version, C.VERSION);
+});
