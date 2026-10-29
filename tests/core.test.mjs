@@ -233,14 +233,9 @@ test('opptaksnavn er lesbare og unike', () => {
 });
 
 /* ---------- effekter ---------- */
-test('vibrasjonsmønster følger lengden og antall utbrudd', () => {
-  for (const s of C.SAMPLES) {
-    const v = Array.from(C.vibrationPattern(s.dur, s.bursts));
-    assert.ok(v.length >= 1 && v.length <= 40 && v.length % 2 === 1, s.id);
-    assert.ok(v.every((x) => Number.isInteger(x) && x > 0), s.id);
-    assert.ok(v.reduce((a, b) => a + b, 0) <= Math.max(60, Math.min(s.dur, 3) * 1000) + 1, s.id);
-  }
-  assert.ok(C.vibrationPattern(2, 10).length > C.vibrationPattern(2, 1).length);
+test('appen vibrerer aldri', () => {
+  assert.ok(!/navigator\.vibrate|\.vibrate\(/.test(html), 'ingen kall til vibrate');
+  assert.ok(!('vibrationPattern' in C), 'vibrasjonsmønster skal være fjernet');
 });
 
 test('akustikkrom og syndebukker er gyldige', () => {

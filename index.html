@@ -374,8 +374,11 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
 (function (root) {
   'use strict';
 
-  var VERSION = '3.0.1';
+  var VERSION = '3.1.0';
   var CHANGELOG = [
+    { version: '3.1.0', date: '2026-10-29', changes: [
+      'Fjernet vibrasjon – telefonen vibrerer ikke lenger når det fises'
+    ] },
     { version: '3.0.1', date: '2026-10-27', changes: [
       'Rettet adressen i feilmeldingen: kilemann.github.io/Prutto.io/ med stor P'
     ] },
@@ -683,17 +686,6 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     };
   }
 
-  /* ---------- Vibrasjon: én puls per utbrudd, spredt over opptaket ---------- */
-  function vibrationPattern(dur, bursts) {
-    var total = Math.max(60, Math.min(Number(dur) || 0, 3) * 1000);
-    var n = clamp(Math.round(Number(bursts) || 1), 1, Math.min(12, Math.floor(total / 40)));
-    var period = total / n;
-    var on = Math.max(15, Math.floor(period * 0.55)), off = Math.max(10, Math.floor(period - on));
-    var out = [];
-    for (var i = 0; i < n; i++) { if (i) out.push(off); out.push(on); }
-    return out;
-  }
-
   root.PruttCore = {
     VERSION: VERSION, CHANGELOG: CHANGELOG, clamp: clamp, mulberry32: mulberry32,
     SOURCES: SOURCES, SAMPLES: SAMPLES, sample: sample, sampleUrl: sampleUrl, sampleLabel: sampleLabel,
@@ -705,8 +697,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     STEPS: STEPS, DJ_ROWS: DJ_ROWS, DEFAULT_PATTERN: DEFAULT_PATTERN, stepDuration: stepDuration,
     isValidPattern: isValidPattern, toggleStep: toggleStep, randomPattern: randomPattern, isShake: isShake,
     encodeRecipe: encodeRecipe, decodeRecipe: decodeRecipe,
-    LAB_FIELDS: LAB_FIELDS, labField: labField, voiceToLab: voiceToLab, labToVoice: labToVoice, randomLab: randomLab,
-    vibrationPattern: vibrationPattern
+    LAB_FIELDS: LAB_FIELDS, labField: labField, voiceToLab: voiceToLab, labToVoice: labToVoice, randomLab: randomLab
   };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
@@ -938,7 +929,6 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
       if (!reduceMotion && s.db >= 100) {
         var app = $('#app'); app.classList.remove('shake'); void app.offsetWidth; app.classList.add('shake');
       }
-      if (navigator.vibrate) { try { navigator.vibrate(C.vibrationPattern(dur, smp.bursts)); } catch (e) {} }
     }
     var n = opts.light ? 2 : (reduceMotion ? 4 : 8 + Math.round(s.db / 12));
     if (opts.origin || !opts.light) burst(opts.origin, n, smp, s);

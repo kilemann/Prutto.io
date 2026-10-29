@@ -1,5 +1,8 @@
 # Changelog – Prutt-O-Teket Super 3000
 
+## v3.1.0 – 2026-10-29
+- Fjernet vibrasjon. Telefonen vibrerer ikke lenger når det fises.
+
 ## v3.0.1 – 2026-10-27
 - Rettet adressen i feilmeldingen og README: kilemann.github.io/Prutto.io/ med stor P.
 
