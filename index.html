@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Prutt-O-Teket Super 3000</title>
-<meta name="description" content="Norges mest avanserte biologiske lydlaboratorium – med 44 ekte fiseopptak.">
+<meta name="description" content="Norges mest avanserte biologiske lydlaboratorium – med 47 ekte fiseopptak.">
 <meta name="theme-color" content="#0d1326">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💨</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -210,9 +210,6 @@ footer details{margin:10px auto 0;max-width:560px;text-align:left;background:var
 footer summary{cursor:pointer;font-weight:700;color:var(--text)}
 footer h4{margin:12px 0 4px;color:var(--yellow);font-size:.85rem}
 footer ul{margin:0;padding-left:1.2em;line-height:1.5}
-.credits p{margin:10px 0 8px;line-height:1.45}
-.credits a{color:var(--gas)}
-.credits li{margin-bottom:6px}
 .version{font-family:var(--mono);background:#000;color:var(--gas);padding:2px 7px;border-radius:6px}
 
 #app.shake{animation:shake .42s cubic-bezier(.36,.07,.19,.97)}
@@ -283,7 +280,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     <section id="panel-lab" role="tabpanel" aria-labelledby="tab-lab" class="panel" hidden>
       <div class="lab-head">
         <h2>Biologisk gasslaboratorium</h2>
-        <p class="sub">Velg blant 44 ekte opptak og vri på tonehøyde, rasp og hakking til du har skapt et mesterverk.</p>
+        <p class="sub">Velg blant 47 ekte opptak og vri på tonehøyde, rasp og hakking til du har skapt et mesterverk.</p>
       </div>
       <div class="lab-grid">
         <div class="well" id="labFields"></div>
@@ -349,14 +346,10 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
 
   <footer>
     <p>Prutt-O-Teket Super 3000 <span class="version" id="version"></span></p>
-    <p>44 ekte opptak med fri lisens. Ingen dyr ble skadet – bortsett fra nesa di.</p>
+    <p>47 ekte opptak. Ingen dyr ble skadet – bortsett fra nesa di.</p>
     <details>
       <summary>Hva er nytt?</summary>
       <div id="changelog"></div>
-    </details>
-    <details>
-      <summary>Lydkreditering</summary>
-      <div id="credits" class="credits"></div>
     </details>
   </footer>
 </div>
@@ -374,8 +367,14 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
 (function (root) {
   'use strict';
 
-  var VERSION = '3.1.0';
+  var VERSION = '4.0.0';
   var CHANGELOG = [
+    { version: '4.0.0', date: '2026-11-01', changes: [
+      'Helt nye lyder: 47 fiseopptak erstatter de gamle 44',
+      'Lydkreditering fjernet',
+      'Knappene har maks lengde, så de lengste lydene ikke durer i 15 sekunder (laben spiller hele)',
+      'Oppskriftslenker fra 3.x virker ikke lenger, siden opptakene er byttet'
+    ] },
     { version: '3.1.0', date: '2026-10-29', changes: [
       'Fjernet vibrasjon – telefonen vibrerer ikke lenger når det fises'
     ] },
@@ -413,74 +412,61 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     };
   }
 
-  /* ---------- Kilder og opptak ---------- */
-  var SOURCES = {
-    yle: { author: 'Yle Arkisto', title: '425594 ylearkisto farts-pieruja.wav', note: 'via Freesound, lastet opp til Commons av Zache',
-      url: 'https://commons.wikimedia.org/wiki/File:425594_ylearkisto_farts-pieruja.wav', license: 'CC BY 3.0', licenseUrl: 'https://creativecommons.org/licenses/by/3.0/' },
-    frt755: { author: 'Horst Frank', title: 'Frt755 1.ogg',
-      url: 'https://commons.wikimedia.org/wiki/File:Frt755_1.ogg', license: 'CC BY-SA 3.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/' },
-    flatus: { author: 'JohnSumisu', title: 'Flatus.wav',
-      url: 'https://commons.wikimedia.org/wiki/File:Flatus.wav', license: 'CC BY-SA 3.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/' },
-    aimee: { author: 'PlatypussyPatrick', title: "Flatulence d'Aimée.ogg",
-      url: 'https://commons.wikimedia.org/wiki/File:Flatulence_d%27Aim%C3%A9e.ogg', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/' },
-    elcharpi: { author: 'El Charpi', title: 'Fart.ogg',
-      url: 'https://commons.wikimedia.org/wiki/File:Fart.ogg', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/' },
-    jjzh: { author: 'Prononcateur', title: 'Flatulences 03°2° JJZh.ogg',
-      url: 'https://commons.wikimedia.org/wiki/File:Flatulences_03%C2%B02%C2%B0_JJZh.ogg', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/' },
-    shortpop: { author: 'Subhashish Panigrahi', title: 'Human fart.wav',
-      url: 'https://commons.wikimedia.org/wiki/File:Human_fart.wav', license: 'CC BY-SA 4.0', licenseUrl: 'https://creativecommons.org/licenses/by-sa/4.0/' }
-  };
-
-  // [id, varighet s, aktiv lyd s, spektralt tyngdepunkt Hz, spektral flathet (sus), antall utbrudd, kilde]
-  // Målt fra de ferdige MP3-filene.
+  /* ---------- Opptak ---------- */
+  // [id, varighet s, aktiv lyd s, spektralt tyngdepunkt Hz, spektral flathet (sus), antall utbrudd]
+  // Målt fra de ferdige MP3-filene i lyder/.
   var SAMPLE_ROWS = [
-    ['aimee', 1.003, 0.29, 1935, 0.289, 6, 'aimee'],
-    ['fart', 0.35, 0.15, 2113, 0.356, 1, 'elcharpi'],
-    ['flatus', 4.61, 0.57, 1676, 0.018, 3, 'flatus'],
-    ['frt755', 2.601, 2.59, 341, 0.052, 0, 'frt755'],
-    ['jjzh', 1.159, 0.71, 1036, 0.077, 4, 'jjzh'],
-    ['short-pop', 0.411, 0.37, 2165, 0.304, 0, 'shortpop'],
-    ['yle-01', 0.71, 0.41, 2252, 0.261, 4, 'yle'],
-    ['yle-02', 1.474, 0.34, 1649, 0.274, 1, 'yle'],
-    ['yle-03', 2.13, 0.49, 2277, 0.309, 5, 'yle'],
-    ['yle-04', 0.796, 0.52, 2503, 0.378, 6, 'yle'],
-    ['yle-05', 2.067, 1.36, 1594, 0.189, 6, 'yle'],
-    ['yle-06', 0.377, 0.17, 2669, 0.456, 3, 'yle'],
-    ['yle-07', 2.169, 0.38, 1525, 0.188, 3, 'yle'],
-    ['yle-08', 0.505, 0.26, 1583, 0.268, 1, 'yle'],
-    ['yle-09', 1.142, 0.38, 2150, 0.388, 2, 'yle'],
-    ['yle-10', 1.314, 0.67, 2607, 0.418, 2, 'yle'],
-    ['yle-11', 0.636, 0.44, 1424, 0.23, 8, 'yle'],
-    ['yle-12', 1.249, 0.64, 2418, 0.389, 10, 'yle'],
-    ['yle-13', 1.074, 0.92, 1756, 0.253, 11, 'yle'],
-    ['yle-15', 2.871, 1.1, 1613, 0.221, 6, 'yle'],
-    ['yle-17', 0.485, 0.39, 2240, 0.311, 1, 'yle'],
-    ['yle-18', 1.869, 0.6, 1748, 0.228, 5, 'yle'],
-    ['yle-19', 1.021, 0.51, 651, 0.058, 1, 'yle'],
-    ['yle-20', 0.322, 0.22, 1137, 0.11, 2, 'yle'],
-    ['yle-21', 1.395, 0.65, 764, 0.101, 8, 'yle'],
-    ['yle-22', 0.882, 0.68, 1572, 0.166, 18, 'yle'],
-    ['yle-24', 0.772, 0.63, 2413, 0.357, 4, 'yle'],
-    ['yle-25', 1.177, 0.67, 2370, 0.366, 8, 'yle'],
-    ['yle-26', 2.173, 1.17, 1972, 0.304, 9, 'yle'],
-    ['yle-30', 0.91, 0.44, 1877, 0.246, 4, 'yle'],
-    ['yle-31', 2.819, 2.09, 1739, 0.171, 4, 'yle'],
-    ['yle-32', 1.597, 0.49, 1494, 0.187, 4, 'yle'],
-    ['yle-33', 0.646, 0.39, 1958, 0.373, 1, 'yle'],
-    ['yle-34', 1.394, 0.89, 1969, 0.345, 16, 'yle'],
-    ['yle-35', 1.021, 0.35, 2316, 0.312, 1, 'yle'],
-    ['yle-36', 1.225, 0.36, 1219, 0.173, 2, 'yle'],
-    ['yle-38', 5.697, 4.5, 1980, 0.306, 16, 'yle'],
-    ['yle-40', 0.948, 0.49, 2765, 0.46, 2, 'yle'],
-    ['yle-42', 1.675, 0.88, 1812, 0.191, 3, 'yle'],
-    ['yle-43', 1.61, 0.48, 1433, 0.183, 4, 'yle'],
-    ['yle-44', 0.481, 0.39, 2027, 0.382, 1, 'yle'],
-    ['yle-45', 1.295, 0.82, 1947, 0.329, 13, 'yle'],
-    ['yle-46', 0.639, 0.35, 2350, 0.304, 3, 'yle'],
-    ['yle-48', 1.568, 1.07, 2089, 0.348, 2, 'yle']
+    ['fart1', 3.207, 1.22, 3786, 0.631, 5],
+    ['fart2', 1.834, 1.36, 2053, 0.282, 10],
+    ['fart3', 2.595, 1.95, 2139, 0.068, 8],
+    ['fart4', 0.413, 0.29, 2508, 0.442, 1],
+    ['fart5', 1.566, 0.87, 2371, 0.292, 3],
+    ['fart6', 14.433, 6.85, 1170, 0.161, 31],
+    ['fart7', 0.654, 0.44, 1246, 0.179, 1],
+    ['fart8', 0.904, 0.72, 1072, 0.106, 5],
+    ['fart9', 0.439, 0.36, 3375, 0.194, 1],
+    ['fart10', 0.931, 0.77, 1077, 0.067, 3],
+    ['fart11', 1.027, 0.89, 970, 0.054, 1],
+    ['fart13', 1.28, 0.94, 886, 0.05, 4],
+    ['fart14', 6.509, 5.42, 1738, 0.229, 17],
+    ['fart15', 2.866, 0.82, 2011, 0.294, 3],
+    ['fart16', 1.448, 1.14, 3671, 0.556, 9],
+    ['fart18', 0.554, 0.3, 2025, 0.357, 1],
+    ['fart19', 2.3, 0.82, 1224, 0.186, 2],
+    ['fart20', 1.433, 1.15, 2641, 0.34, 2],
+    ['fart21', 2.689, 2.32, 1552, 0.04, 11],
+    ['fart23', 0.799, 0.66, 4871, 0.506, 5],
+    ['fart24', 0.21, 0.13, 3064, 0.349, 1],
+    ['fart25', 0.298, 0.17, 1427, 0.086, 1],
+    ['fart26', 0.755, 0.6, 5733, 0.624, 1],
+    ['fart27', 1.165, 1.02, 2847, 0.239, 1],
+    ['fart28', 0.503, 0.36, 3321, 0.494, 2],
+    ['fart29', 1.03, 0.52, 2235, 0.143, 1],
+    ['fart30', 2.059, 1.15, 903, 0.003, 4],
+    ['fart31', 4.471, 2.0, 2459, 0.309, 14],
+    ['fart32', 2.719, 0.98, 2215, 0.122, 6],
+    ['fart33', 7.725, 2.3, 1529, 0.204, 15],
+    ['fart34', 3.471, 3.36, 1906, 0.347, 25],
+    ['fart35', 6.238, 3.54, 1055, 0.015, 110],
+    ['fart36', 2.339, 2.22, 3082, 0.409, 6],
+    ['fart37', 2.509, 1.31, 1693, 0.247, 18],
+    ['fart38', 1.591, 1.49, 1537, 0.02, 1],
+    ['fart40', 0.707, 0.51, 1909, 0.282, 11],
+    ['fart41', 0.733, 0.63, 2296, 0.331, 3],
+    ['fart42', 0.538, 0.46, 2152, 0.214, 1],
+    ['fart43', 1.001, 0.67, 1342, 0.042, 2],
+    ['fart44', 1.759, 1.51, 2664, 0.392, 7],
+    ['fart45', 0.83, 0.15, 4309, 0.609, 2],
+    ['fart46', 2.919, 1.34, 2275, 0.326, 1],
+    ['fart47', 3.528, 0.92, 2163, 0.317, 2],
+    ['fart48', 0.948, 0.84, 1813, 0.268, 1],
+    ['fart49', 1.648, 1.46, 2350, 0.393, 2],
+    ['fart50', 7.478, 7.4, 3644, 0.535, 2],
+    ['fart51', 4.778, 3.75, 2060, 0.341, 10]
   ];
+
   var SAMPLES = SAMPLE_ROWS.map(function (r) {
-    return { id: r[0], dur: r[1], act: r[2], cen: r[3], flat: r[4], bursts: r[5], src: r[6] };
+    return { id: r[0], dur: r[1], act: r[2], cen: r[3], flat: r[4], bursts: r[5] };
   });
   var BY_ID = {};
   SAMPLES.forEach(function (s) { BY_ID[s.id] = s; });
@@ -494,6 +480,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     sprut: function (s) { return s.bursts >= 9; },
     luft: function (s) { return s.flat >= 0.37; },
     lang: function (s) { return s.act >= 1; },
+    tung: function (s) { return s.act >= 1 && s.flat < 0.37 && s.cen < 2600; },
     kort: function (s) { return s.dur <= 0.52; },
     middels: function (s) { return s.cen >= 1300 && s.cen < 2200 && s.bursts < 9 && s.dur >= 0.6; },
     alle: function () { return true; }
@@ -525,7 +512,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
   function num(v, d) { var n = Number(v); return (v === undefined || v === null || v === '' || !isFinite(n)) ? d : n; }
   function normalizeVoice(input) {
     var v = input || {};
-    var out = { sample: BY_ID[v.sample] ? v.sample : 'frt755' };
+    var out = { sample: BY_ID[v.sample] ? v.sample : 'fart11' };
     for (var k in VOICE_RANGES) out[k] = clamp(num(v[k], VOICE_DEFAULTS[k]), VOICE_RANGES[k][0], VOICE_RANGES[k][1]);
     out.stutter = Math.round(out.stutter);
     out.reverse = !!v.reverse;
@@ -569,21 +556,21 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
   /* ---------- Soundboard ---------- */
   var PRESETS = [
     { id: 'snikeren', title: 'Snikeren', desc: 'Stille, men dødelig', name: 'Snikeren (stille, men dødelig)', icon: '🥷', colors: ['#fff27a', '#f5b700'],
-      layers: [{ bank: 'luft', rate: 1, volume: 0.35 }] },
+      layers: [{ bank: 'luft', rate: 1, volume: 0.35, maxLen: 3 }] },
     { id: 'sjefen', title: 'Sjefens torden', desc: 'Kontorets undergang', name: 'Sjefens tordenbrak', icon: '⚡', colors: ['#ff7a5c', '#e1263a'],
-      layers: [{ bank: 'dyp', rate: 0.92, volume: 1, rasp: 0.3 }] },
+      layers: [{ bank: 'dyp', rate: 0.92, volume: 1, rasp: 0.3, maxLen: 3 }] },
     { id: 'svigermor', title: 'Svigermors hevn', desc: 'Giftgass i stua', name: 'Svigermors hevn', icon: '👵', colors: ['#d18bff', '#ff5fa2'],
-      layers: [{ bank: 'middels', rate: 1, volume: 0.9 }] },
+      layers: [{ bank: 'middels', rate: 1, volume: 0.9, maxLen: 3 }] },
     { id: 'taco', title: 'Etter tacofredag', desc: 'Biologisk fare', name: 'Tacofredag-katastrofen', icon: '🌮', colors: ['#9cff5c', '#22a34a'],
-      layers: [{ bank: 'lang', rate: 0.95, volume: 1, rasp: 0.1 }] },
+      layers: [{ bank: 'lang', rate: 0.95, volume: 1, rasp: 0.1, maxLen: 4 }] },
     { id: 'vaate', title: 'Våte væla', desc: 'Boblete og saftig', name: 'Våte væla', icon: '💦', colors: ['#6fe3ff', '#1aa6a0'],
-      layers: [{ bank: 'sprut', rate: 1.05, volume: 0.95 }] },
+      layers: [{ bank: 'sprut', rate: 1.05, volume: 0.95, maxLen: 3 }] },
     { id: 'maskingevaer', title: 'Maskingeværet', desc: 'Rask serieild', name: 'Maskingeværsalve', icon: '🔫', colors: ['#7cffb0', '#0f9f6e'],
       layers: [{ bank: 'kort', rate: 1.1, volume: 0.95, rasp: 0.2, maxLen: 0.3 }], burst: { count: 5, gap: 0.13, rateStep: 0.04 } },
     { id: 'mus', title: 'Liten mus, stor promp', desc: 'Uventet bass', name: 'Liten mus med stor gass', icon: '🐹', colors: ['#ffc86b', '#ff9a1f'],
-      layers: [{ bank: 'lys', rate: 1.7, volume: 0.7, maxLen: 0.35 }, { bank: 'dyp', rate: 0.85, volume: 1, delay: 0.45, main: true }] },
+      layers: [{ bank: 'lys', rate: 1.7, volume: 0.7, maxLen: 0.35 }, { bank: 'dyp', rate: 0.85, volume: 1, delay: 0.45, main: true, maxLen: 3 }] },
     { id: 'orkan', title: 'Megaorkanen', desc: 'Skjelving i gulvet', name: 'Klasse 5-urorkan', icon: '🌪️', colors: ['#8d8aa8', '#2d2a45'], light: true,
-      layers: [{ bank: 'lang', rate: 0.72, volume: 1, rasp: 0.6, main: true }, { bank: 'dyp', rate: 0.6, volume: 0.8, rasp: 0.4, delay: 0.2 }] }
+      layers: [{ bank: 'tung', rate: 0.72, volume: 1, rasp: 0.6, main: true, maxLen: 4.5 }, { bank: 'dyp', rate: 0.6, volume: 0.8, rasp: 0.4, delay: 0.2, maxLen: 4 }] }
   ];
 
   var ROOMS = [
@@ -688,7 +675,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
 
   root.PruttCore = {
     VERSION: VERSION, CHANGELOG: CHANGELOG, clamp: clamp, mulberry32: mulberry32,
-    SOURCES: SOURCES, SAMPLES: SAMPLES, sample: sample, sampleUrl: sampleUrl, sampleLabel: sampleLabel,
+    SAMPLES: SAMPLES, sample: sample, sampleUrl: sampleUrl, sampleLabel: sampleLabel,
     BANK_RULES: BANK_RULES, bank: bank, pickSample: pickSample,
     VOICE_DEFAULTS: VOICE_DEFAULTS, VOICE_RANGES: VOICE_RANGES, normalizeVoice: normalizeVoice,
     stutterPlan: stutterPlan, voiceDuration: voiceDuration,
@@ -903,7 +890,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
   }
   function presetById(id) { return C.PRESETS.filter(function (p) { return p.id === id; })[0]; }
   function surprise(origin) {
-    playVoice({ sample: pickFrom('alle'), rate: 0.8 + rng() * 0.5, volume: 1, rasp: rng() < 0.3 ? 0.3 : 0 }, { origin: origin, name: 'Overraskelsen' });
+    playVoice({ sample: pickFrom('alle'), rate: 0.8 + rng() * 0.5, volume: 1, rasp: rng() < 0.3 ? 0.3 : 0 }, { origin: origin, maxLen: 4, name: 'Overraskelsen' });
   }
 
   /* ================= EFFEKTER ================= */
@@ -1082,7 +1069,7 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
   if (window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches) $('#keyHint').hidden = false;
 
   /* ================= LAB ================= */
-  var lab = C.voiceToLab({ sample: 'frt755' }), labShots = 0;
+  var lab = C.voiceToLab({ sample: 'fart11' }), labShots = 0;
   function fmt(f, v) { return String(Math.round(v)) + f.unit; }
   function renderLab() {
     var opts = C.SAMPLES.slice().sort(function (a, b) { return a.cen - b.cen; }).map(function (s) {
@@ -1320,17 +1307,6 @@ footer ul{margin:0;padding-left:1.2em;line-height:1.5}
     $('#changelog').innerHTML = C.CHANGELOG.map(function (v) {
       return '<h4>v' + v.version + ' – ' + v.date + '</h4><ul>' + v.changes.map(function (c) { return '<li>' + esc(c) + '</li>'; }).join('') + '</ul>';
     }).join('');
-    var counts = {};
-    C.SAMPLES.forEach(function (s) { counts[s.src] = (counts[s.src] || 0) + 1; });
-    $('#credits').innerHTML = '<p>Alle lydene er ekte opptak med fri lisens, hentet fra Wikimedia Commons via ' +
-      '<a href="https://github.com/jacksongriggs/focus-loop" target="_blank" rel="noopener">focus-loop</a>. ' +
-      'Endret: trimmet, nivåjustert og konvertert til MP3. Endrede CC BY-SA-filer er fortsatt CC BY-SA.</p><ul>' +
-      Object.keys(C.SOURCES).map(function (k) {
-        var s = C.SOURCES[k];
-        return '<li><strong>' + esc(s.author) + '</strong>' + (s.note ? ' (' + esc(s.note) + ')' : '') + ' – ' +
-          '<a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.title) + '</a>, ' +
-          '<a href="' + esc(s.licenseUrl) + '" target="_blank" rel="noopener">' + esc(s.license) + '</a> · ' + counts[k] + ' opptak</li>';
-      }).join('') + '</ul>';
   }
 
   renderMute(); renderRooms(); renderBoard(); renderLab(); renderTimer(); renderShake(); renderDj(); renderFooter(); renderLoad();

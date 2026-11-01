@@ -33,39 +33,37 @@ test('ingen syntetisk lydmotor igjen – bare ekte opptak', () => {
   assert.ok(!/createOscillator/.test(html), 'oscillatorer skal ikke brukes til fiselyder');
 });
 
-/* ---------- opptak og kreditering ---------- */
-test('alle 44 opptak finnes som filer og har målte egenskaper', () => {
-  assert.equal(C.SAMPLES.length, 44);
-  assert.equal(new Set(C.SAMPLES.map((s) => s.id)).size, 44);
+/* ---------- opptak ---------- */
+test('alle 47 opptak finnes som filer og har målte egenskaper', () => {
+  assert.equal(C.SAMPLES.length, 47);
+  assert.equal(new Set(C.SAMPLES.map((s) => s.id)).size, 47);
   for (const s of C.SAMPLES) {
     assert.match(s.id, /^[a-z0-9-]+$/, s.id);
     assert.ok(existsSync(new URL(C.sampleUrl(s.id), root)), 'mangler fil ' + C.sampleUrl(s.id));
     for (const k of ['dur', 'act', 'cen', 'flat', 'bursts']) assert.ok(Number.isFinite(s[k]) && s[k] >= 0, `${s.id}.${k}`);
     assert.ok(s.act <= s.dur + 0.05, s.id);
-    assert.ok(C.SOURCES[s.src], `${s.id}: ukjent kilde ${s.src}`);
   }
   const files = readdirSync(new URL('lyder/', root)).filter((f) => f.endsWith('.mp3'));
-  assert.equal(files.length, 44, 'ingen ukrediterte lydfiler i lyder/');
+  assert.equal(files.length, 47, 'alle lydfiler i lyder/ skal være registrert');
+  assert.deepEqual(readdirSync(new URL('lyder/', root)).filter((f) => !f.endsWith('.mp3')), [], 'bare lydfiler i lyder/');
 });
 
-test('hver kilde har forfatter, lenke og fri lisens, og alle kilder brukes', () => {
-  const used = new Set(C.SAMPLES.map((s) => s.src));
-  for (const [id, src] of Object.entries(C.SOURCES)) {
-    assert.ok(src.author && src.title, id);
-    assert.match(src.url, /^https:\/\/commons\.wikimedia\.org\//, id);
-    assert.match(src.license, /^CC BY(-SA)? \d\.\d$/, id);
-    assert.match(src.licenseUrl, /^https:\/\/creativecommons\.org\/licenses\//, id);
-    assert.ok(used.has(id), 'ubrukt kilde ' + id);
-  }
-  const credits = readFileSync(new URL('lyder/KREDITERING.md', root), 'utf8');
-  for (const src of Object.values(C.SOURCES)) assert.ok(credits.includes(src.author), 'KREDITERING.md mangler ' + src.author);
+test('ingen lydkreditering i appen', () => {
+  assert.ok(!('SOURCES' in C));
+  assert.ok(!/id="credits"|<summary>Lydkreditering/.test(html));
+  assert.ok(!existsSync(new URL('lyder/KREDITERING.md', root)));
+});
+
+test('knappene har maks lengde, så lange opptak ikke durer i vei', () => {
+  for (const p of C.PRESETS) for (const l of p.layers) assert.ok(l.maxLen > 0 && l.maxLen <= 5, `${p.id}: ${l.bank}`);
 });
 
 /* ---------- grupper ---------- */
 test('grupper: hver har minst 3 opptak, og alle oppfyller regelen', () => {
   const rules = {
     dyp: (s) => s.cen < 1300, lys: (s) => s.cen >= 2200, sprut: (s) => s.bursts >= 9,
-    luft: (s) => s.flat >= 0.37, lang: (s) => s.act >= 1, kort: (s) => s.dur <= 0.52
+    luft: (s) => s.flat >= 0.37, lang: (s) => s.act >= 1, kort: (s) => s.dur <= 0.52,
+    tung: (s) => s.act >= 1 && s.flat < 0.37 && s.cen < 2600
   };
   for (const [name, rule] of Object.entries(rules)) {
     const b = C.bank(name);
@@ -73,7 +71,7 @@ test('grupper: hver har minst 3 opptak, og alle oppfyller regelen', () => {
     for (const id of b) assert.ok(rule(S(id)), `${name}: ${id}`);
     assert.equal(b.length, C.SAMPLES.filter(rule).length, name + ' skal ta med alle som passer');
   }
-  assert.equal(C.bank('alle').length, 44);
+  assert.equal(C.bank('alle').length, 47);
   assert.deepEqual(plain(C.bank('finnes-ikke')), []);
 });
 
@@ -88,7 +86,7 @@ test('pickSample er deterministisk, holder seg i gruppen og gjentar ikke forrige
     assert.notEqual(x, last);
     last = x;
   }
-  assert.equal(C.pickSample(['frt755'], C.mulberry32(1), 'frt755'), 'frt755');
+  assert.equal(C.pickSample(['fart11'], C.mulberry32(1), 'fart11'), 'fart11');
 });
 
 /* ---------- forhåndsvalg ---------- */
@@ -115,16 +113,16 @@ test('normalizeVoice klemmer verdier og faller tilbake på gyldig opptak', () =>
   assert.equal(v.rate, 2); assert.equal(v.volume, 0); assert.equal(v.rasp, 1); assert.equal(v.stutter, 4);
   assert.equal(v.reverse, true);
   assert.equal(C.normalizeVoice(null).rate, 1);
-  assert.equal(C.normalizeVoice({ sample: 'yle-12' }).sample, 'yle-12');
+  assert.equal(C.normalizeVoice({ sample: 'fart14' }).sample, 'fart14');
   assert.equal(C.normalizeVoice({ stutter: 'x' }).stutter, 0);
 });
 
 test('voiceDuration: dobbel fart gir halv tid, hakking forlenger', () => {
-  const base = C.voiceDuration({ sample: 'frt755' });
-  assert.ok(near(base, S('frt755').dur, 0.001));
-  assert.ok(near(C.voiceDuration({ sample: 'frt755', rate: 2 }), base / 2, 0.001));
-  assert.ok(C.voiceDuration({ sample: 'frt755', stutter: 3 }) > base);
-  assert.ok(near(C.voiceDuration({ sample: 'frt755' }, 0.3), 0.3, 0.001), 'maks lengde');
+  const base = C.voiceDuration({ sample: 'fart11' });
+  assert.ok(near(base, S('fart11').dur, 0.001));
+  assert.ok(near(C.voiceDuration({ sample: 'fart11', rate: 2 }), base / 2, 0.001));
+  assert.ok(C.voiceDuration({ sample: 'fart11', stutter: 3 }) > base);
+  assert.ok(near(C.voiceDuration({ sample: 'fart11' }, 0.3), 0.3, 0.001), 'maks lengde');
 });
 
 test('stutterPlan: n hakk + én hel avspilling, i stigende tid', () => {
@@ -142,11 +140,11 @@ test('stutterPlan: n hakk + én hel avspilling, i stigende tid', () => {
 
 /* ---------- statistikk ---------- */
 test('statistikk følger lyden: volum, dypere tone og rasp gir flere dB', () => {
-  const base = C.computeStats({ sample: 'yle-30', volume: 0.5, rate: 1 });
-  assert.ok(C.computeStats({ sample: 'yle-30', volume: 1, rate: 1 }).db > base.db);
-  assert.ok(C.computeStats({ sample: 'yle-30', volume: 0.5, rate: 0.6 }).db > base.db);
-  assert.ok(C.computeStats({ sample: 'yle-30', volume: 0.5, rate: 1, rasp: 1 }).db > base.db);
-  assert.ok(C.computeStats({ sample: 'yle-34' }).stench > C.computeStats({ sample: 'yle-20' }).stench, 'sprutete lukter mer');
+  const base = C.computeStats({ sample: 'fart43', volume: 0.5, rate: 1 });
+  assert.ok(C.computeStats({ sample: 'fart43', volume: 1, rate: 1 }).db > base.db);
+  assert.ok(C.computeStats({ sample: 'fart43', volume: 0.5, rate: 0.6 }).db > base.db);
+  assert.ok(C.computeStats({ sample: 'fart43', volume: 0.5, rate: 1, rasp: 1 }).db > base.db);
+  assert.ok(C.computeStats({ sample: 'fart34' }).stench > C.computeStats({ sample: 'fart25' }).stench, 'sprutete lukter mer');
   for (const s of C.SAMPLES) for (const rate of [0.5, 1, 2]) for (const volume of [0, 1]) {
     const st = C.computeStats({ sample: s.id, rate, volume, rasp: 1 });
     assert.ok(st.db >= 0 && st.db <= 140 && st.stench >= 0 && st.stench <= 99 && st.complaint >= 0 && st.complaint <= 99, s.id);
@@ -197,15 +195,15 @@ test('isShake oppdager kraftig risting', () => {
 
 /* ---------- oppskrift og lab ---------- */
 test('oppskrift v2 kan deles og leses tilbake', () => {
-  const v = C.normalizeVoice({ sample: 'yle-38', rate: 0.73, volume: 0.8, rasp: 0.4, stutter: 2, reverse: true });
+  const v = C.normalizeVoice({ sample: 'fart33', rate: 0.73, volume: 0.8, rasp: 0.4, stutter: 2, reverse: true });
   const code = C.encodeRecipe(v);
   assert.match(code, /^v2\./);
   const back = C.decodeRecipe(code);
-  assert.equal(back.sample, 'yle-38'); assert.equal(back.stutter, 2); assert.equal(back.reverse, true);
+  assert.equal(back.sample, 'fart33'); assert.equal(back.stutter, 2); assert.equal(back.reverse, true);
   for (const k of ['rate', 'volume', 'rasp']) assert.ok(near(back[k], v[k], 0.01), k);
-  for (const bad of ['tull', undefined, 'v2.yle-38.1', 'v2.ukjent.100.80.40.2.1', 'v1.120.54.80.50.15.30.10.0.90', 'v2.yle-38.a.80.40.2.1'])
+  for (const bad of ['tull', undefined, 'v2.fart33.1', 'v2.ukjent.100.80.40.2.1', 'v1.120.54.80.50.15.30.10.0.90', 'v2.fart33.a.80.40.2.1'])
     assert.equal(C.decodeRecipe(bad), null, String(bad));
-  assert.equal(C.decodeRecipe('v2.yle-38.999.80.40.2.0').rate, 2);
+  assert.equal(C.decodeRecipe('v2.fart33.999.80.40.2.0').rate, 2);
 });
 
 test('lab-verdier og stemme kan konverteres begge veier, og ligger innenfor sliderne', () => {
@@ -228,8 +226,8 @@ test('lab-verdier og stemme kan konverteres begge veier, og ligger innenfor slid
 
 test('opptaksnavn er lesbare og unike', () => {
   const labels = C.SAMPLES.map((s) => C.sampleLabel(s.id));
-  assert.equal(new Set(labels).size, 44);
-  assert.match(C.sampleLabel('frt755'), /dyp/i);
+  assert.equal(new Set(labels).size, 47);
+  assert.match(C.sampleLabel('fart11'), /dyp/i);
 });
 
 /* ---------- effekter ---------- */
