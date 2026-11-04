@@ -1,5 +1,8 @@
 # Changelog – Prutt-O-Teket Super 3000
 
+## v4.1.0 – 2026-11-04
+- Navn, versjon og info-knapp (i) øverst til venstre, med bruksanvisning og versjonsliste, som i de andre appene.
+
 ## v4.0.0 – 2026-11-01
 - Helt nye lyder: 47 fiseopptak erstatter de gamle 44. Fire av de 51 filene var eksakte duplikater og er tatt ut.
 - Lydkreditering fjernet fra appen, og `lyder/KREDITERING.md` er slettet.
